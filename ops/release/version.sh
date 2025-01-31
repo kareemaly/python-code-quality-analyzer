@@ -112,10 +112,12 @@ function verify_version_consistency() {
     
     # Extract versions without color codes
     local pyproject_version=$(grep -o 'version = "[^"]*"' "$PYPROJECT_FILE" | head -1 | cut -d'"' -f2)
-    local setup_version=$(grep -o 'version="[^"]*"' "$SETUP_FILE" | head -1 | cut -d'"' -f2)
+    local setup_version=$(grep -o 'version="[^"]*",' "$SETUP_FILE" | head -1 | cut -d'"' -f2)
     
     if [ -z "$pyproject_version" ] || [ -z "$setup_version" ]; then
         log_error "Failed to extract version from one or both files"
+        log_error "pyproject.toml version: $pyproject_version"
+        log_error "setup.py version: $setup_version"
         exit 1
     fi
     
