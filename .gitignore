@@ -1,0 +1,27 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# IDE and editor files
+*.swp
+*.swo
+*.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Reports
+reports/code_analysis_report.json

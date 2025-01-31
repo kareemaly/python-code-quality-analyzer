@@ -1,0 +1,5 @@
+click>=8.1.7
+rich>=13.7.0
+radon>=6.0.1
+pathlib>=1.0.1
+typing-extensions>=4.9.0

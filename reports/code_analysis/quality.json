@@ -1,0 +1,603 @@
+{
+  "timestamp": "2025-01-31T12:17:35.236491",
+  "type": "quality",
+  "metrics": {
+    "maintainability": {
+      "score": 63.83536687663918,
+      "rating": "Poor"
+    },
+    "complexity": {
+      "score": 38.892857142857146,
+      "rating": "Poor"
+    }
+  },
+  "critical_files": [
+    {
+      "file": "cursor_analyzer/analyzers/logs.py",
+      "metrics": {
+        "loc": 257,
+        "sloc": 205,
+        "complexity": 59.0,
+        "maintainability": 43.41344998790298,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "re",
+          "typing"
+        ],
+        "classes": 3,
+        "functions": 8
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_chat.py",
+      "metrics": {
+        "loc": 122,
+        "sloc": 101,
+        "complexity": 26.0,
+        "maintainability": 66.04558179571661,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "pathlib",
+          "sqlite3",
+          "typing"
+        ],
+        "classes": 3,
+        "functions": 3
+      },
+      "issues": [
+        "High complexity",
+        null,
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/commands/ai_commands.py",
+      "metrics": {
+        "loc": 115,
+        "sloc": 88,
+        "complexity": 12.0,
+        "maintainability": 72.18318168773223,
+        "dependencies": [
+          "analyzers",
+          "datetime",
+          "formatters",
+          "json",
+          "pathlib",
+          "rich",
+          "typer",
+          "typing"
+        ],
+        "classes": 0,
+        "functions": 2
+      },
+      "issues": [
+        "High complexity",
+        null,
+        "Many dependencies"
+      ],
+      "priority": "Medium"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/extension.py",
+      "metrics": {
+        "loc": 313,
+        "sloc": 261,
+        "complexity": 54.0,
+        "maintainability": 39.41742761951254,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "psutil",
+          "sqlite3",
+          "time",
+          "typing"
+        ],
+        "classes": 4,
+        "functions": 8
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai.py",
+      "metrics": {
+        "loc": 416,
+        "sloc": 346,
+        "complexity": 78.0,
+        "maintainability": 27.8844497091372,
+        "dependencies": [
+          "ai_chat",
+          "ai_composer",
+          "ai_network",
+          "collections",
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "psutil",
+          "re",
+          "requests",
+          "sqlite3",
+          "time",
+          "typing",
+          "utils"
+        ],
+        "classes": 5,
+        "functions": 8
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/ai_analyzer.py",
+      "metrics": {
+        "loc": 117,
+        "sloc": 97,
+        "complexity": 39.0,
+        "maintainability": 63.911695956449776,
+        "dependencies": [
+          "json",
+          "pathlib",
+          "time",
+          "typing"
+        ],
+        "classes": 1,
+        "functions": 2
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        null
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/crash.py",
+      "metrics": {
+        "loc": 316,
+        "sloc": 260,
+        "complexity": 51.0,
+        "maintainability": 40.18926328329435,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "re",
+          "sqlite3",
+          "typing"
+        ],
+        "classes": 3,
+        "functions": 6
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/history.py",
+      "metrics": {
+        "loc": 416,
+        "sloc": 336,
+        "complexity": 76.0,
+        "maintainability": 28.970225290459467,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "difflib",
+          "json",
+          "os",
+          "pathlib",
+          "shutil",
+          "sqlite3",
+          "typing"
+        ],
+        "classes": 4,
+        "functions": 9
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/performance.py",
+      "metrics": {
+        "loc": 456,
+        "sloc": 403,
+        "complexity": 81.0,
+        "maintainability": 23.9397216116314,
+        "dependencies": [
+          "collections",
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "psutil",
+          "sqlite3",
+          "threading",
+          "time",
+          "typing"
+        ],
+        "classes": 5,
+        "functions": 7
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/monitor.py",
+      "metrics": {
+        "loc": 276,
+        "sloc": 224,
+        "complexity": 69.0,
+        "maintainability": 39.22545139282539,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "psutil",
+          "queue",
+          "socket",
+          "threading",
+          "time",
+          "typing",
+          "watchdog"
+        ],
+        "classes": 5,
+        "functions": 11
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/resource_monitor.py",
+      "metrics": {
+        "loc": 42,
+        "sloc": 34,
+        "complexity": 13.0,
+        "maintainability": 91.92555148412653,
+        "dependencies": [
+          "psutil",
+          "time",
+          "typing"
+        ],
+        "classes": 1,
+        "functions": 3
+      },
+      "issues": [
+        "High complexity",
+        null,
+        null
+      ],
+      "priority": "Medium"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_network.py",
+      "metrics": {
+        "loc": 137,
+        "sloc": 112,
+        "complexity": 36.0,
+        "maintainability": 61.553900679555895,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "pathlib",
+          "typing"
+        ],
+        "classes": 2,
+        "functions": 4
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        null
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/utils/file_utils.py",
+      "metrics": {
+        "loc": 48,
+        "sloc": 42,
+        "complexity": 12.0,
+        "maintainability": 87.7503175241578,
+        "dependencies": [
+          "json",
+          "os",
+          "pathlib",
+          "typing"
+        ],
+        "classes": 0,
+        "functions": 5
+      },
+      "issues": [
+        "High complexity",
+        null,
+        null
+      ],
+      "priority": "Medium"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/network.py",
+      "metrics": {
+        "loc": 258,
+        "sloc": 210,
+        "complexity": 61.0,
+        "maintainability": 42.44023594361218,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "os",
+          "pathlib",
+          "psutil",
+          "re",
+          "requests",
+          "socket",
+          "subprocess",
+          "typing"
+        ],
+        "classes": 3,
+        "functions": 7
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/process.py",
+      "metrics": {
+        "loc": 183,
+        "sloc": 150,
+        "complexity": 43.0,
+        "maintainability": 53.74021149216061,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "pathlib",
+          "psutil",
+          "time",
+          "typing"
+        ],
+        "classes": 2,
+        "functions": 7
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "analyze_complexity.py",
+      "metrics": {
+        "loc": 234,
+        "sloc": 183,
+        "complexity": 58.0,
+        "maintainability": 46.06037478716769,
+        "dependencies": [
+          "ast",
+          "concurrent",
+          "dataclasses",
+          "json",
+          "math",
+          "os",
+          "pathlib",
+          "radon",
+          "rich",
+          "sys",
+          "typing"
+        ],
+        "classes": 2,
+        "functions": 7
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/cli.py",
+      "metrics": {
+        "loc": 1370,
+        "sloc": 1102,
+        "complexity": 202.0,
+        "maintainability": 0.0,
+        "dependencies": [
+          "commands",
+          "cursor_analyzer",
+          "cursor_analyzers",
+          "datetime",
+          "json",
+          "pathlib",
+          "rich",
+          "threading",
+          "time",
+          "typer",
+          "typing"
+        ],
+        "classes": 0,
+        "functions": 45
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_composer.py",
+      "metrics": {
+        "loc": 97,
+        "sloc": 75,
+        "complexity": 17.0,
+        "maintainability": 74.41230651787251,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "json",
+          "pathlib",
+          "typing"
+        ],
+        "classes": 2,
+        "functions": 3
+      },
+      "issues": [
+        "High complexity",
+        null,
+        null
+      ],
+      "priority": "High"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/config.py",
+      "metrics": {
+        "loc": 167,
+        "sloc": 134,
+        "complexity": 36.0,
+        "maintainability": 57.74711974141759,
+        "dependencies": [
+          "dataclasses",
+          "datetime",
+          "hashlib",
+          "json",
+          "os",
+          "pathlib",
+          "sqlite3",
+          "typing"
+        ],
+        "classes": 3,
+        "functions": 8
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        "Many dependencies"
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/location.py",
+      "metrics": {
+        "loc": 116,
+        "sloc": 99,
+        "complexity": 42.0,
+        "maintainability": 62.78935801985483,
+        "dependencies": [
+          "json",
+          "os",
+          "pathlib",
+          "platform",
+          "typing"
+        ],
+        "classes": 1,
+        "functions": 9
+      },
+      "issues": [
+        "High complexity",
+        "Low maintainability",
+        null
+      ],
+      "priority": "Critical"
+    },
+    {
+      "file": "cursor_analyzer/formatters/tables.py",
+      "metrics": {
+        "loc": 116,
+        "sloc": 97,
+        "complexity": 14.0,
+        "maintainability": 69.66169595644978,
+        "dependencies": [
+          "datetime",
+          "rich",
+          "typing"
+        ],
+        "classes": 0,
+        "functions": 6
+      },
+      "issues": [
+        "High complexity",
+        null,
+        null
+      ],
+      "priority": "Medium"
+    }
+  ],
+  "refactoring_priorities": [
+    {
+      "area": "Code Structure",
+      "tasks": [
+        "Extract complex methods into smaller functions",
+        "Implement design patterns for better organization",
+        "Add comprehensive error handling"
+      ]
+    },
+    {
+      "area": "Documentation",
+      "tasks": [
+        "Add docstrings to all public interfaces",
+        "Create module-level documentation",
+        "Add type hints for better code understanding"
+      ]
+    },
+    {
+      "area": "Testing",
+      "tasks": [
+        "Add unit tests for complex modules",
+        "Implement integration tests",
+        "Add property-based tests for critical functions"
+      ]
+    }
+  ]
+}

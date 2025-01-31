@@ -1,0 +1,233 @@
+{
+  "timestamp": "2025-01-31T12:17:35.236355",
+  "type": "complexity",
+  "summary": {
+    "total_files": 28,
+    "total_loc": 5694,
+    "total_sloc": 4661,
+    "average_complexity": 38.892857142857146,
+    "average_maintainability": 63.83536687663918,
+    "total_classes": 49,
+    "total_functions": 173
+  },
+  "high_complexity_modules": [
+    {
+      "file": "cursor_analyzer/cli.py",
+      "complexity": 202.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/performance.py",
+      "complexity": 81.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai.py",
+      "complexity": 78.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/history.py",
+      "complexity": 76.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/monitor.py",
+      "complexity": 69.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/network.py",
+      "complexity": 61.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/logs.py",
+      "complexity": 59.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "analyze_complexity.py",
+      "complexity": 58.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/extension.py",
+      "complexity": 54.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/crash.py",
+      "complexity": 51.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/process.py",
+      "complexity": 43.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/location.py",
+      "complexity": 42.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/ai_analyzer.py",
+      "complexity": 39.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_network.py",
+      "complexity": 36.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/config.py",
+      "complexity": 36.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_chat.py",
+      "complexity": 26.0,
+      "risk_level": "Critical",
+      "recommendation": "Split into smaller modules"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_composer.py",
+      "complexity": 17.0,
+      "risk_level": "High",
+      "recommendation": "Refactor complex functions"
+    },
+    {
+      "file": "cursor_analyzer/formatters/tables.py",
+      "complexity": 14.0,
+      "risk_level": "Medium",
+      "recommendation": "Refactor complex functions"
+    },
+    {
+      "file": "cursor_analyzer/resource_monitor.py",
+      "complexity": 13.0,
+      "risk_level": "Medium",
+      "recommendation": "Refactor complex functions"
+    },
+    {
+      "file": "cursor_analyzer/commands/ai_commands.py",
+      "complexity": 12.0,
+      "risk_level": "Medium",
+      "recommendation": "Refactor complex functions"
+    },
+    {
+      "file": "cursor_analyzer/utils/file_utils.py",
+      "complexity": 12.0,
+      "risk_level": "Medium",
+      "recommendation": "Refactor complex functions"
+    }
+  ],
+  "maintainability_issues": [
+    {
+      "file": "cursor_analyzer/cli.py",
+      "maintainability": 0.0,
+      "risk_level": "Critical",
+      "recommendation": "Complete rewrite needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/performance.py",
+      "maintainability": 23.9397216116314,
+      "risk_level": "High",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai.py",
+      "maintainability": 27.8844497091372,
+      "risk_level": "High",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/history.py",
+      "maintainability": 28.970225290459467,
+      "risk_level": "High",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/monitor.py",
+      "maintainability": 39.22545139282539,
+      "risk_level": "High",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/extension.py",
+      "maintainability": 39.41742761951254,
+      "risk_level": "High",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/crash.py",
+      "maintainability": 40.18926328329435,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/network.py",
+      "maintainability": 42.44023594361218,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/logs.py",
+      "maintainability": 43.41344998790298,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "analyze_complexity.py",
+      "maintainability": 46.06037478716769,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/process.py",
+      "maintainability": 53.74021149216061,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/config.py",
+      "maintainability": 57.74711974141759,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/ai_network.py",
+      "maintainability": 61.553900679555895,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/analyzers/location.py",
+      "maintainability": 62.78935801985483,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    },
+    {
+      "file": "cursor_analyzer/ai_analyzer.py",
+      "maintainability": 63.911695956449776,
+      "risk_level": "Medium",
+      "recommendation": "Major refactoring needed"
+    }
+  ]
+}
