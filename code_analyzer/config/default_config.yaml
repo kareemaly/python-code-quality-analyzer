@@ -73,29 +73,17 @@ analysis:
     - ".vscode"
     - ".vscode/**/*"
     - "*/.vscode/**/*"
-    # Documentation
-    - "docs"
-    - "docs/**/*"
-    - "*/docs/**/*"
-    - "doc"
-    - "doc/**/*"
-    - "*/doc/**/*"
-    # Test files
-    - "tests"
-    - "tests/**/*"
-    - "*/tests/**/*"
-    - "test"
-    - "test/**/*"
-    - "*/test/**/*"
-    - "testing"
-    - "testing/**/*"
-    - "*/testing/**/*"
-    - "test_*.py"
-    - "**/test_*.py"
-    - "*_test.py"
-    - "**/*_test.py"
-    - "*_tests.py"
-    - "**/*_tests.py"
+  analyze_tests: false
+  test_patterns:
+    - 'test_*.py'
+    - '*_test.py'
+    - '*_tests.py'
+    - 'tests/**/*'
+    - '*/tests/**/*'
+    - 'test/**/*'
+    - '*/test/**/*'
+    - 'testing/**/*'
+    - '*/testing/**/*'
 
 # Output settings
 output:

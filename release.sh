@@ -1,164 +1,169 @@
 #!/bin/bash
 
-# Default values
-BUMP_TYPE="patch"
-COMMIT_TITLE=""
-COMMIT_DETAILS=""
+# Detect shell and source appropriate config
+if [ -n "$ZSH_VERSION" ]; then
+    source ~/.zshrc 2>/dev/null || true
+elif [ -n "$BASH_VERSION" ]; then
+    source ~/.bashrc 2>/dev/null || true
+fi
+
+# Validate environment variables
+if [ -z "$PIP_PUBLISH_API_TOKEN" ]; then
+    echo "Error: PIP_PUBLISH_API_TOKEN environment variable is not set"
+    exit 1
+fi
 
 # Help function
-show_help() {
-    echo "Usage: ./release.sh [options]"
+function show_help {
+    echo "Usage: ./release.sh -t <commit_title> -d <commit_details> -b <bump_type>"
     echo "Options:"
-    echo "  -t, --title         Commit title (required)"
-    echo "  -d, --details       Commit details (optional)"
-    echo "  -b, --bump          Version bump type: major, minor, patch (default: patch)"
-    echo "  -h, --help          Show this help message"
-    echo ""
-    echo "Example:"
-    echo "  ./release.sh -t \"Add new feature\" -d \"Detailed description\" -b minor"
+    echo "  -t <commit_title>    Title for the commit message"
+    echo "  -d <commit_details>  Details for the commit message"
+    echo "  -b <bump_type>      Version bump type (major, minor, patch)"
+    echo "  -h                   Show this help message"
+    exit 1
 }
 
 # Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -t|--title)
-            COMMIT_TITLE="$2"
-            shift 2
-            ;;
-        -d|--details)
-            COMMIT_DETAILS="$2"
-            shift 2
-            ;;
-        -b|--bump)
-            BUMP_TYPE="$2"
-            shift 2
-            ;;
-        -h|--help)
-            show_help
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            show_help
-            exit 1
-            ;;
+while getopts "t:d:b:h" opt; do
+    case $opt in
+        t) commit_title="$OPTARG";;
+        d) commit_details="$OPTARG";;
+        b) bump_type="$OPTARG";;
+        h) show_help;;
+        \?) echo "Invalid option -$OPTARG" >&2; show_help;;
     esac
 done
 
 # Validate required arguments
-if [ -z "$COMMIT_TITLE" ]; then
-    echo "Error: Commit title is required"
+if [ -z "$commit_title" ] || [ -z "$commit_details" ] || [ -z "$bump_type" ]; then
+    echo "Error: Missing required arguments"
     show_help
-    exit 1
 fi
 
 # Validate bump type
-if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
+if [ "$bump_type" != "major" ] && [ "$bump_type" != "minor" ] && [ "$bump_type" != "patch" ]; then
     echo "Error: Invalid bump type. Must be major, minor, or patch"
     exit 1
 fi
 
-# Function to bump version in files
-bump_version() {
-    local current_version=$(grep -E "version\s*=\s*['\"].*['\"]" setup.py | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+# Function to bump version
+function bump_version {
+    local current_version=$(grep 'version = ' pyproject.toml | head -1 | cut -d'"' -f2)
+    if [[ ! "$current_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        current_version="0.1.0"
+    fi
+    
     local major=$(echo $current_version | cut -d. -f1)
     local minor=$(echo $current_version | cut -d. -f2)
     local patch=$(echo $current_version | cut -d. -f3)
 
-    case $BUMP_TYPE in
-        major)
-            major=$((major + 1))
-            minor=0
-            patch=0
-            ;;
-        minor)
-            minor=$((minor + 1))
-            patch=0
-            ;;
-        patch)
-            patch=$((patch + 1))
-            ;;
+    case $bump_type in
+        major) major=$((major + 1)); minor=0; patch=0;;
+        minor) minor=$((minor + 1)); patch=0;;
+        patch) patch=$((patch + 1));;
     esac
 
     local new_version="$major.$minor.$patch"
-    echo "Bumping version from $current_version to $new_version"
-
-    # Update version in setup.py
-    sed -i "" "s/version=\"$current_version\"/version=\"$new_version\"/" setup.py
-    
-    # Update version in pyproject.toml
-    sed -i "" "s/version = \"$current_version\"/version = \"$new_version\"/" pyproject.toml
-    
     echo $new_version
 }
 
-# Function to build and check distribution
-build_and_check() {
-    echo "Building distribution packages..."
+# Function to update version in files
+function update_version_files {
+    local new_version=$1
+    sed -i '' "s/version=\".*\"/version=\"$new_version\"/" setup.py
+    sed -i '' "s/version = \".*\"/version = \"$new_version\"/" pyproject.toml
+}
+
+# Function to clean build artifacts
+function clean_build_artifacts {
+    echo "Cleaning build artifacts..."
     rm -rf dist/ build/ *.egg-info/
-    python -m build || exit 1
+}
+
+# Function to build and check distribution
+function build_and_check_dist {
+    echo "Building distribution packages..."
+    python -m build
     
     echo "Checking distribution packages..."
-    python -m twine check dist/* || exit 1
+    twine check dist/*
 }
 
 # Function to create git commit and tag
-create_git_commit() {
-    local version=$1
-    local commit_msg="$COMMIT_TITLE"
-    
-    if [ ! -z "$COMMIT_DETAILS" ]; then
-        commit_msg="$commit_msg\n\n$COMMIT_DETAILS"
-    fi
-    
+function create_git_commit_and_tag {
+    local new_version=$1
     echo "Creating git commit and tag..."
-    git add setup.py pyproject.toml
-    git commit -m "$commit_msg" || exit 1
     
     # Remove existing tag if it exists
-    git tag -d "v$version" 2>/dev/null || true
-    git push origin ":refs/tags/v$version" 2>/dev/null || true
+    git tag -d "v$new_version" 2>/dev/null || true
+    git push origin ":refs/tags/v$new_version" 2>/dev/null || true
     
-    # Create new tag
-    git tag -a "v$version" -m "$commit_msg" || exit 1
+    # Create new commit and tag
+    git add setup.py pyproject.toml
+    git commit -m "$commit_title
+
+$commit_details"
+    git tag -a "v$new_version" -m "Version $new_version"
+}
+
+# Function to test package in Docker
+function test_in_docker {
+    local version=$1
+    echo "Testing package in Docker..."
+    
+    # Make the test script executable
+    chmod +x run_docker_tests.sh
+    
+    # Run the test script
+    ./run_docker_tests.sh -v $version
+    
+    if [ $? -ne 0 ]; then
+        echo "Docker tests failed!"
+        exit 1
+    fi
 }
 
 # Function to publish to PyPI
-publish_to_pypi() {
+function publish_to_pypi {
     echo "Publishing to PyPI..."
-    if [ -z "$PIP_PUBLISH_API_TOKEN" ]; then
-        echo "Error: PIP_PUBLISH_API_TOKEN environment variable is not set"
-        exit 1
-    fi
-    
-    # Use API token for authentication
     TWINE_USERNAME=__token__ TWINE_PASSWORD="$PIP_PUBLISH_API_TOKEN" python -m twine upload dist/*
 }
 
 # Main execution
 echo "Starting release process..."
 
-# Activate virtual environment if it exists
-if [ -d ".venv" ]; then
-    source .venv/bin/activate
-fi
+# Analyze current versions
+echo -e "\nAnalyzing current versions before release..."
+./analyze_versions.sh
 
-# Ensure we have the latest pip and build tools
-python -m pip install --upgrade pip build twine || exit 1
+# Activate virtual environment and install required packages
+source .venv/bin/activate
+python -m pip install --upgrade pip build twine
 
-# Bump version
-NEW_VERSION=$(bump_version)
+# Clean build artifacts
+clean_build_artifacts
+
+# Get new version
+new_version=$(bump_version)
+
+# Update version in files
+update_version_files $new_version
 
 # Build and check distribution
-build_and_check
+build_and_check_dist
+
+# Test package in Docker
+test_in_docker $new_version
 
 # Create git commit and tag
-create_git_commit $NEW_VERSION
+create_git_commit_and_tag $new_version
 
 # Publish to PyPI
 publish_to_pypi
 
-echo "Release v$NEW_VERSION completed successfully!"
-echo "Don't forget to push the changes and tags:"
-echo "  git push origin main"
-echo "  git push origin v$NEW_VERSION" 
+# Analyze updated versions
+echo -e "\nAnalyzing versions after release..."
+./analyze_versions.sh
+
+echo "Release process completed successfully!"

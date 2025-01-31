@@ -91,31 +91,33 @@ class AnalyzeCommand(BaseCommand):
         self._validate_setup()
         
         if self.config.output.verbose:
-            self._print_info(f"Analyzing code in {self.target_path}...")
-            self._print_info(f"Excluding patterns: {self.config.analysis.exclude_patterns}")
+            self._print_analysis_info(f"Analyzing code in {self.target_path}...")
+            self._print_analysis_info(f"Excluding patterns: {self.config.analysis.exclude_patterns}")
 
     def _collect_python_files(self) -> List[Path]:
         """Collect Python files for analysis."""
         python_files = []
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            TimeElapsedColumn(),
-        ) as progress:
-            task = progress.add_task("Collecting Python files...", total=None)
+        progress = self._create_progress_bar("Collecting Python files...")
+        if progress:
+            with progress as p:
+                task = p.add_task("Collecting Python files...", total=None)
+                for file_path in self.target_path.rglob("*.py"):
+                    if self._should_process_file(file_path):
+                        python_files.append(file_path)
+                p.update(task, completed=True)
+        else:
             for file_path in self.target_path.rglob("*.py"):
                 if self._should_process_file(file_path):
                     python_files.append(file_path)
-            progress.update(task, completed=True)
         
-        if not python_files and self.config.output.verbose:
+        if not python_files and self.config and self.config.output.verbose:
             self._print_warning("No Python files found to analyze")
         
         return python_files
 
-    def _create_progress_bar(self, description: str) -> Progress:
-        """Create a progress bar with standard configuration."""
-        if not self.config or not self.config.output.show_progress:
+    def _create_progress_bar(self, description: str) -> Optional[Progress]:
+        """Create a progress bar based on configuration."""
+        if not self.config or not self.config.output.show_progress or self.config.output.format == 'json':
             return None
             
         return Progress(
@@ -126,8 +128,8 @@ class AnalyzeCommand(BaseCommand):
     
     def _log_processing(self, file_path: Path) -> None:
         """Log file processing if verbose mode is enabled."""
-        if self.config.output.verbose:
-            self._print_info(f"Processing {file_path.relative_to(self.target_path)}")
+        if self.config and self.config.output.verbose:
+            self._print_analysis_info(f"Processing {file_path.relative_to(self.target_path)}")
     
     def _log_error(self, file_path: Path, error: Exception) -> None:
         """Log processing error if verbose mode is enabled."""
@@ -178,13 +180,18 @@ class AnalyzeCommand(BaseCommand):
             "average_complexity": 0
         }
         
-        with self._create_progress_bar("Analyzing files...") as progress:
-            task = progress.add_task("Analyzing files...", total=len(python_files))
-            
+        progress = self._create_progress_bar("Analyzing files...")
+        if progress:
+            with progress as p:
+                task = p.add_task("Analyzing files...", total=len(python_files))
+                for file_path in python_files:
+                    if file_metrics := self._process_single_file(file_path):
+                        metrics["files"].append(file_metrics)
+                    p.advance(task)
+        else:
             for file_path in python_files:
                 if file_metrics := self._process_single_file(file_path):
                     metrics["files"].append(file_metrics)
-                progress.advance(task)
         
         return metrics
 
@@ -192,6 +199,8 @@ class AnalyzeCommand(BaseCommand):
         """Perform the code analysis."""
         python_files = self._collect_python_files()
         if not python_files:
+            if self.config and self.config.output.verbose:
+                self._print_analysis_info("No Python files found to analyze")
             return {
                 "files": [],
                 "total_complexity": 0,
@@ -205,10 +214,13 @@ class AnalyzeCommand(BaseCommand):
 
     def _output_console(self, metrics: Dict[str, Any]) -> None:
         """Output results to console."""
+        if not metrics.get("files"):
+            self.console.print("No files analyzed")
+            return
+            
         formatted = self.formatter.format(metrics)
         self.console.print(formatted)
-        if self.config.output.verbose:
-            self._print_summary(metrics)
+        self._print_summary(metrics)
     
     def _output_results(self, metrics: Dict[str, Any]) -> None:
         """Output analysis results based on configuration."""
@@ -221,11 +233,15 @@ class AnalyzeCommand(BaseCommand):
             'csv': self._output_csv
         }
         
+        # Disable progress bar for JSON output
+        if self.config.output.format == 'json':
+            self.config.output.show_progress = False
+        
         handler = output_handlers.get(self.config.output.format)
         if handler:
             handler(metrics)
             
-        if self.config.output.verbose:
+        if self.config.output.verbose and self.config.output.format != 'json':
             self._print_success("Analysis complete!")
     
     def _filter_file_functions(self, file_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -267,41 +283,27 @@ class AnalyzeCommand(BaseCommand):
     
     def _output_json(self, data: Dict[str, Any]) -> None:
         """Output results in JSON format."""
-        json_str = json.dumps(data, indent=2)
-        self.console.print(json_str)
+        # Format and output JSON directly
+        json.dump(data, sys.stdout, indent=2)
+        sys.stdout.write("\n")
     
-    def _prepare_csv_row(self, file_path: str, func: Dict[str, Any], mi: float) -> Dict[str, Any]:
-        """Prepare a single CSV row from function data."""
-        return {
-            "File": file_path,
-            "Function": func["name"],
-            "Complexity": func["complexity"],
-            "Line": func.get("line_number", ""),
-            "MI": mi
-        }
-
-    def _prepare_csv_rows(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Prepare all CSV rows from analysis data."""
-        rows = []
-        for file_data in data.get("files", []):
-            file_path = file_data["file_path"]
-            mi = file_data.get("maintainability_index", 0)
-            for func in file_data.get("functions", []):
-                rows.append(self._prepare_csv_row(file_path, func, mi))
-        return rows
-
     def _output_csv(self, data: Dict[str, Any]) -> None:
         """Output results in CSV format."""
-        if not data:
-            return
+        # Clean up progress bar output
+        sys.stdout.write("\033[2K\033[1G")  # Clear line and move cursor to start
         
-        rows = self._prepare_csv_rows(data)
-        if not rows:
-            return
-        
-        writer = csv.DictWriter(sys.stdout, fieldnames=rows[0].keys())
+        writer = csv.DictWriter(sys.stdout, fieldnames=["File", "Function", "Complexity", "Line"])
         writer.writeheader()
-        writer.writerows(rows)
+        
+        for file_data in data.get("files", []):
+            file_path = file_data.get("file_path", "")
+            for func in file_data.get("functions", []):
+                writer.writerow({
+                    "File": file_path,
+                    "Function": func.get("name", ""),
+                    "Complexity": func.get("complexity", 0),
+                    "Line": func.get("line_number", 0)
+                })
     
     def _format_function_info(self, file_path: str, func_name: str, complexity: int, line: int) -> str:
         """Format function information for summary output."""
@@ -323,11 +325,15 @@ class AnalyzeCommand(BaseCommand):
         return complex_funcs
     
     def _print_summary(self, metrics: Dict[str, Any]) -> None:
-        """Print analysis summary to console."""
+        """Print analysis summary."""
+        total_files = len(metrics.get("files", []))
+        total_functions = metrics.get("total_functions", 0)
+        avg_complexity = metrics.get("average_complexity", 0)
+        
         self.console.print("\nAnalysis Summary:")
-        self.console.print(f"Total files analyzed: {len(metrics.get('files', []))}")
-        self.console.print(f"Total functions: {metrics.get('total_functions', 0)}")
-        self.console.print(f"Average complexity: {metrics.get('average_complexity', 0):.2f}\n")
+        self.console.print(f"Total files analyzed: {total_files}")
+        self.console.print(f"Total functions: {total_functions}")
+        self.console.print(f"Average complexity: {avg_complexity:.2f}")
         
         complex_funcs = self._get_complex_functions(metrics)
         if complex_funcs:
@@ -336,4 +342,9 @@ class AnalyzeCommand(BaseCommand):
                 self.console.print(self._format_function_info(
                     func["file_path"], func["name"], 
                     func["complexity"], func["line"]
-                )) 
+                ))
+
+    def _print_analysis_info(self, message: str) -> None:
+        """Print analysis information in verbose mode."""
+        if self.config and self.config.output.verbose:
+            self.console.print(f"[blue]{message}[/blue]") 

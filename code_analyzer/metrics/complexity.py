@@ -1,6 +1,6 @@
 import ast
 import math
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Tuple
 
 class ComplexityMetrics:
     def calculate_maintainability_index(self, code: str, complexity: float, num_functions: int) -> float:
@@ -110,3 +110,25 @@ class HalsteadVisitor(ast.NodeVisitor):
     def visit_Constant(self, node):
         self.operands.add(str(node.value))
         self.operand_count += 1
+
+def calculate_complexity(code: str) -> Tuple[float, List[Dict[str, Any]], Dict[str, float]]:
+    """
+    Calculate code complexity metrics including cyclomatic complexity and Halstead metrics.
+    
+    Args:
+        code: The source code to analyze
+        
+    Returns:
+        Tuple containing:
+        - Overall complexity score
+        - List of function complexities
+        - Halstead metrics dictionary
+    """
+    tree = ast.parse(code)
+    visitor = ComplexityVisitor()
+    visitor.visit(tree)
+    
+    metrics = ComplexityMetrics()
+    halstead_metrics = metrics.calculate_halstead_metrics(code)
+    
+    return visitor.complexity, visitor.functions, halstead_metrics

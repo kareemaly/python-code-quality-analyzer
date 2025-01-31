@@ -76,20 +76,60 @@ class Config:
 class ConfigLoader:
     """Configuration loader for code analyzer."""
     
-    def __init__(self):
-        """Initialize the configuration loader."""
+    def __init__(self, config_path: Optional[Path] = None):
+        """Initialize the configuration loader.
+        
+        Args:
+            config_path: Optional path to configuration file
+        """
         self._config = Config()
         self._load_default_config()
+        if config_path:
+            self._load_local_config(config_path)
     
     def _load_default_config(self) -> None:
         """Load default configuration from file."""
         try:
             with open(DEFAULT_CONFIG_PATH, 'r') as f:
                 default_config = yaml.safe_load(f)
-            self._update_config(default_config)
+            if default_config:
+                # Convert to structured format
+                structured_config = {}
+                for section in ["analysis", "output", "metrics", "reports", "server"]:
+                    if section in default_config:
+                        structured_config[section] = {}
+                        section_obj = getattr(self._config, section)
+                        for key, value in default_config[section].items():
+                            if hasattr(section_obj, key):
+                                structured_config[section][key] = value
+                
+                # Update config with structured values
+                for section, values in structured_config.items():
+                    if hasattr(self._config, section):
+                        section_obj = getattr(self._config, section)
+                        for key, value in values.items():
+                            if hasattr(section_obj, key):
+                                setattr(section_obj, key, value)
         except Exception as e:
             print(f"Warning: Could not load default config: {e}")
     
+    def _merge_configs(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+        """Deep merge two configuration dictionaries.
+        
+        Args:
+            base: Base configuration dictionary
+            override: Override configuration dictionary
+            
+        Returns:
+            Dict[str, Any]: Merged configuration
+        """
+        for key, value in override.items():
+            if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+                self._merge_configs(base[key], value)
+            else:
+                base[key] = value
+        return base
+
     def _load_local_config(self, config_path: Optional[Path] = None) -> None:
         """Load configuration from local file."""
         paths = [
@@ -98,7 +138,6 @@ class ConfigLoader:
             Path.cwd() / "code_analyzer.yml",
             Path.cwd() / ".code_analyzer.yaml",
             Path.cwd() / ".code_analyzer.yml",
-            Path.home() / ".code_analyzer.yaml",
             Path.home() / ".code_analyzer.yml"
         ]
         
@@ -107,41 +146,77 @@ class ConfigLoader:
                 try:
                     with open(path, 'r') as f:
                         config = yaml.safe_load(f)
-                    self._update_config(config)
+                    if config:
+                        # Convert to structured format
+                        structured_config = {}
+                        for section in ["analysis", "output", "metrics", "reports", "server"]:
+                            if section in config:
+                                structured_config[section] = {}
+                                section_obj = getattr(self._config, section)
+                                for key, value in config[section].items():
+                                    if hasattr(section_obj, key):
+                                        structured_config[section][key] = value
+                        
+                        # Get current config as dict
+                        current_config = {
+                            "analysis": {k: getattr(self._config.analysis, k) for k in dir(self._config.analysis) if not k.startswith('_')},
+                            "output": {k: getattr(self._config.output, k) for k in dir(self._config.output) if not k.startswith('_')},
+                            "metrics": {k: getattr(self._config.metrics, k) for k in dir(self._config.metrics) if not k.startswith('_')},
+                            "reports": {k: getattr(self._config.reports, k) for k in dir(self._config.reports) if not k.startswith('_')},
+                            "server": {k: getattr(self._config.server, k) for k in dir(self._config.server) if not k.startswith('_')}
+                        }
+                        
+                        # Merge configs
+                        merged = self._merge_configs(current_config, structured_config)
+                        
+                        # Update config object with merged values
+                        for section, values in merged.items():
+                            if hasattr(self._config, section):
+                                section_obj = getattr(self._config, section)
+                                for key, value in values.items():
+                                    if hasattr(section_obj, key):
+                                        setattr(section_obj, key, value)
                     break
                 except Exception as e:
                     print(f"Warning: Error loading config from {path}: {e}")
+            elif path == config_path:  # Only raise error if it's the explicitly provided path
+                raise FileNotFoundError(f"Config file not found: {path}")
     
     def _update_config(self, config_dict: Dict[str, Any]) -> None:
         """Update configuration from dictionary."""
         if not config_dict:
             return
             
-        # Update analysis config
-        if 'analysis' in config_dict:
-            for key, value in config_dict['analysis'].items():
-                setattr(self._config.analysis, key, value)
+        structured_config = {}
         
-        # Update output config
-        if 'output' in config_dict:
-            for key, value in config_dict['output'].items():
-                setattr(self._config.output, key, value)
-        
-        # Update metrics config
-        if 'metrics' in config_dict:
-            for key, value in config_dict['metrics'].items():
-                setattr(self._config.metrics, key, value)
-        
-        # Update reports config
-        if 'reports' in config_dict:
-            for key, value in config_dict['reports'].items():
-                setattr(self._config.reports, key, value)
-        
-        # Update server config
-        if 'server' in config_dict:
-            for key, value in config_dict['server'].items():
-                setattr(self._config.server, key, value)
-    
+        # Convert config dict to proper structure
+        for section in ["analysis", "output", "metrics", "reports", "server"]:
+            if section in config_dict:
+                structured_config[section] = {}
+                for key, value in config_dict[section].items():
+                    if hasattr(getattr(self._config, section), key):
+                        structured_config[section][key] = value
+
+        # Get current config as dict
+        current_config = {
+            "analysis": {k: getattr(self._config.analysis, k) for k in dir(self._config.analysis) if not k.startswith('_')},
+            "output": {k: getattr(self._config.output, k) for k in dir(self._config.output) if not k.startswith('_')},
+            "metrics": {k: getattr(self._config.metrics, k) for k in dir(self._config.metrics) if not k.startswith('_')},
+            "reports": {k: getattr(self._config.reports, k) for k in dir(self._config.reports) if not k.startswith('_')},
+            "server": {k: getattr(self._config.server, k) for k in dir(self._config.server) if not k.startswith('_')}
+        }
+
+        # Merge configs
+        merged = self._merge_configs(current_config, structured_config)
+
+        # Update config object with merged values
+        for section, values in merged.items():
+            if hasattr(self._config, section):
+                section_obj = getattr(self._config, section)
+                for key, value in values.items():
+                    if hasattr(section_obj, key):
+                        setattr(section_obj, key, value)
+
     def load_config(self, config_path: Optional[str] = None,
                    cli_options: Optional[Dict[str, Any]] = None) -> Config:
         """Load configuration from all sources.
@@ -190,27 +265,27 @@ class ConfigLoader:
     @property
     def min_complexity(self) -> int:
         """Get minimum complexity threshold."""
-        return self.get_value("analysis", "min_complexity", default=5)
+        return self._config.analysis.min_complexity
     
     @property
     def exclude_patterns(self) -> list:
         """Get exclude patterns."""
-        return self.get_value("analysis", "exclude_patterns", default=[])
+        return self._config.analysis.exclude_patterns
     
     @property
     def output_format(self) -> str:
         """Get output format."""
-        return self.get_value("output", "format", default="console")
+        return self._config.output.format
     
     @property
     def show_progress(self) -> bool:
         """Get progress bar setting."""
-        return self.get_value("output", "show_progress", default=True)
+        return self._config.output.show_progress
     
     @property
     def verbose(self) -> bool:
         """Get verbose output setting."""
-        return self.get_value("output", "verbose", default=False)
+        return self._config.output.verbose
     
     @property
     def use_color(self) -> bool:
@@ -233,4 +308,4 @@ class ConfigLoader:
             "low": self.get_value("thresholds", "maintainability_index", "low", default=40),
             "medium": self.get_value("thresholds", "maintainability_index", "medium", default=60),
             "high": self.get_value("thresholds", "maintainability_index", "high", default=80)
-        } 
+        }

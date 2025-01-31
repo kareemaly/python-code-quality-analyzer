@@ -28,30 +28,63 @@ class ConsoleFormatter(BaseFormatter):
         if not data or not data.get("files"):
             return "No files analyzed"
             
+        # Print title
+        self.console.print("\n[bold cyan]Code Analysis Results[/bold cyan]\n")
+        
         tables = []
         
-        # Create performance table
-        tables.append(self._create_performance_table(data))
+        # Create performance table first
+        performance_table = self._create_performance_table(data)
+        tables.append(performance_table)
+        
+        # Create complex functions table
+        complex_table = self._create_complex_functions_table(data)
+        tables.append(complex_table)
         
         # Create metrics table
-        tables.append(self._create_metrics_table(data))
+        metrics_table = self._create_metrics_table(data)
+        tables.append(metrics_table)
         
         # Create summary table
-        tables.append(self._create_summary_table(data))
+        summary_table = self._create_summary_table(data)
+        tables.append(summary_table)
         
-        # Render to string using Console
+        # Render tables in columns
         self.console.print(Columns(tables))
+        
+        # Print complex functions summary
+        self._print_complex_functions_summary(data)
+        
         return self.console.export_text()
     
     def _create_performance_table(self, data: Dict[str, Any]) -> Table:
         """Create performance metrics table."""
         table = Table(title="Performance")
         table.add_column("Metric", style="cyan")
-        table.add_column("Value")
+        table.add_column("Value", justify="right")
         
+        # Ensure Total Files is always first
         table.add_row("Total Files", str(len(data["files"])))
         table.add_row("Total Functions", str(data.get("total_functions", 0)))
         table.add_row("Average Complexity", f"{data.get('average_complexity', 0):.2f}")
+        
+        return table
+    
+    def _create_complex_functions_table(self, data: Dict[str, Any]) -> Table:
+        """Create complex functions table."""
+        table = Table(title="Complex Functions")
+        table.add_column("File/Function", style="cyan")
+        table.add_column("Complexity")
+        table.add_column("Line", justify="right")
+        
+        for file_data in data["files"]:
+            for func in file_data.get("functions", []):
+                if func["complexity"] >= 3:  # Show functions with complexity >= 3
+                    table.add_row(
+                        f"{file_data['file_path']}::{func['name']}",
+                        self._color_complexity(func["complexity"]),
+                        str(func.get("line_number", ""))
+                    )
         
         return table
     
@@ -104,6 +137,28 @@ class ConsoleFormatter(BaseFormatter):
         table.add_row("Average Complexity", f"{data.get('average_complexity', 0):.2f}")
         
         return table
+    
+    def _print_complex_functions_summary(self, data: Dict[str, Any]) -> None:
+        """Print summary of complex functions."""
+        complex_functions = []
+        for file_data in data["files"]:
+            for func in file_data.get("functions", []):
+                if func["complexity"] >= 3:  # Show functions with complexity >= 3
+                    complex_functions.append({
+                        "file": file_data["file_path"],
+                        "name": func["name"],
+                        "complexity": func["complexity"],
+                        "line": func.get("line_number", "")
+                    })
+        
+        if complex_functions:
+            self.console.print("\n\nAnalysis Summary:")
+            self.console.print(f"Total files analyzed: {len(data['files'])}")
+            self.console.print(f"Total functions: {data.get('total_functions', 0)}")
+            self.console.print(f"Average complexity: {data.get('average_complexity', 0):.2f}")
+            self.console.print("Functions with complexity >= 3:")
+            for func in complex_functions:
+                self.console.print(f"  {func['file']}::{func['name']} (complexity: {func['complexity']}, line: {func['line']})")
     
     def _get_mi_color(self, mi: float) -> str:
         """Get color for maintainability index."""

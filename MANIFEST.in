@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+recursive-include code_analyzer *.py
+recursive-include code_analyzer/commands *.py
+recursive-include code_analyzer/config *.py
+recursive-include code_analyzer/metrics *.py
+recursive-include code_analyzer/formatters *.py
+recursive-include code_analyzer/analyzers *.py 
