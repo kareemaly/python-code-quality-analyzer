@@ -71,7 +71,7 @@ function update_version_files() {
     
     # Update setup.py
     local setup_tmp=$(mktemp)
-    sed "/^[[:space:]]*version=/c\    version=\"$new_version\"," setup.py > "$setup_tmp"
+    sed "s/^[[:space:]]*version=.*/    version=\"$new_version\",/" setup.py > "$setup_tmp"
     if [ $? -eq 0 ]; then
         mv "$setup_tmp" setup.py
     else
@@ -82,7 +82,7 @@ function update_version_files() {
     
     # Update pyproject.toml
     local pyproject_tmp=$(mktemp)
-    sed "/^version = /c\version = \"$new_version\"" pyproject.toml > "$pyproject_tmp"
+    sed "s/^version = .*/version = \"$new_version\"/" pyproject.toml > "$pyproject_tmp"
     if [ $? -eq 0 ]; then
         mv "$pyproject_tmp" pyproject.toml
     else
