@@ -8,7 +8,8 @@ source "$SCRIPT_DIR/utils.sh"
 setup_error_handling
 
 function get_current_version() {
-    local current_version=$(grep 'version = ' "$PYPROJECT_FILE" | head -1 | cut -d'"' -f2)
+    # Extract version without color codes
+    local current_version=$(grep -o 'version = "[^"]*"' "$PYPROJECT_FILE" | cut -d'"' -f2)
     if [[ ! "$current_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         log_warn "Invalid current version format in $PYPROJECT_FILE, defaulting to 0.1.0"
         current_version="0.1.0"
@@ -88,8 +89,14 @@ function verify_version_consistency() {
     log_info "Verifying version consistency..."
     cd "$PROJECT_ROOT"
     
-    local pyproject_version=$(grep 'version = ' "$PYPROJECT_FILE" | head -1 | cut -d'"' -f2)
-    local setup_version=$(grep 'version=' "$SETUP_FILE" | head -1 | cut -d'"' -f2)
+    # Extract versions without color codes
+    local pyproject_version=$(grep -o 'version = "[^"]*"' "$PYPROJECT_FILE" | cut -d'"' -f2)
+    local setup_version=$(grep -o 'version="[^"]*"' "$SETUP_FILE" | cut -d'"' -f2)
+    
+    if [ -z "$pyproject_version" ] || [ -z "$setup_version" ]; then
+        log_error "Failed to extract version from one or both files"
+        exit 1
+    fi
     
     if [ "$pyproject_version" != "$setup_version" ]; then
         log_error "Version mismatch: pyproject.toml ($pyproject_version) != setup.py ($setup_version)"
