@@ -56,8 +56,8 @@ function main() {
     update_version_files "$new_version"
     verify_version_consistency
     
-    # Step 4: Build package
-    build_all
+    # Step 4: Build and test package
+    build_all "$new_version"
     
     # Step 5: Git operations
     git_release "$new_version" "$commit_title" "$commit_details"
