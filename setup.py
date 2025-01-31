@@ -2,20 +2,20 @@
 Setup configuration for code analyzer package
 """
 
-from setuptools import setup, find_namespace_packages
+from setuptools import find_namespace_packages, setup
 
 setup(
     name="python-code-quality-analyzer",
     version="0.1.0",
-    packages=find_namespace_packages(include=['code_analyzer*']),
+    packages=find_namespace_packages(include=["code_analyzer*"]),
     include_package_data=True,
     package_data={
-        'code_analyzer': [
-            'commands/*.py',
-            'config/*.py',
-            'metrics/*.py',
-            'formatters/*.py',
-            'analyzers/*.py',
+        "code_analyzer": [
+            "commands/*.py",
+            "config/*.py",
+            "metrics/*.py",
+            "formatters/*.py",
+            "analyzers/*.py",
         ],
     },
     install_requires=[
@@ -58,4 +58,4 @@ setup(
         "Programming Language :: Python :: 3.12",
     ],
     python_requires=">=3.8",
-) 
+)

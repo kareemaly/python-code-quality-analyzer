@@ -1,1 +1,1 @@
-"""Test package for code-analyzer.""" 
+"""Test package for code-analyzer."""

@@ -2,7 +2,7 @@
 Commands package for code analyzer.
 """
 
-from .command_registry import registry
 from .analyze import AnalyzeCommand
+from .command_registry import registry
 
-__all__ = ['registry', 'AnalyzeCommand'] 
+__all__ = ["registry", "AnalyzeCommand"]

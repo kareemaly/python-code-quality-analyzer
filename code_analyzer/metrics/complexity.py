@@ -1,9 +1,12 @@
 import ast
 import math
-from typing import Dict, Any, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
+
 
 class ComplexityMetrics:
-    def calculate_maintainability_index(self, code: str, complexity: float, num_functions: int) -> float:
+    def calculate_maintainability_index(
+        self, code: str, complexity: float, num_functions: int
+    ) -> float:
         halstead = self.calculate_halstead_metrics(code)
         volume = halstead["volume"]
         loc = len(code.splitlines())
@@ -27,6 +30,7 @@ class ComplexityMetrics:
         difficulty = (n1 * N2) / (2 * n2) if n2 > 0 else 0
         effort = difficulty * volume
         return {"volume": volume, "difficulty": difficulty, "effort": effort}
+
 
 class ComplexityVisitor(ast.NodeVisitor):
     def __init__(self):
@@ -75,6 +79,7 @@ class ComplexityVisitor(ast.NodeVisitor):
         else:
             self.complexity += 1
 
+
 class HalsteadVisitor(ast.NodeVisitor):
     def __init__(self):
         self.operators: Set[str] = set()
@@ -111,13 +116,14 @@ class HalsteadVisitor(ast.NodeVisitor):
         self.operands.add(str(node.value))
         self.operand_count += 1
 
+
 def calculate_complexity(code: str) -> Tuple[float, List[Dict[str, Any]], Dict[str, float]]:
     """
     Calculate code complexity metrics including cyclomatic complexity and Halstead metrics.
-    
+
     Args:
         code: The source code to analyze
-        
+
     Returns:
         Tuple containing:
         - Overall complexity score
@@ -127,8 +133,8 @@ def calculate_complexity(code: str) -> Tuple[float, List[Dict[str, Any]], Dict[s
     tree = ast.parse(code)
     visitor = ComplexityVisitor()
     visitor.visit(tree)
-    
+
     metrics = ComplexityMetrics()
     halstead_metrics = metrics.calculate_halstead_metrics(code)
-    
+
     return visitor.complexity, visitor.functions, halstead_metrics
