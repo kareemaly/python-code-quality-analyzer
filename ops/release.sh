@@ -2,21 +2,25 @@
 
 # Get script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Source utilities first
 source "$SCRIPT_DIR/release/utils.sh"
 
 # Setup error handling
 setup_error_handling
 
 # Source all release scripts
-source "$SCRIPT_DIR/release/validate.sh"
-source "$SCRIPT_DIR/release/version.sh"
-source "$SCRIPT_DIR/release/build.sh"
-source "$SCRIPT_DIR/release/publish.sh"
-source "$SCRIPT_DIR/release/git.sh"
+for script in validate version build publish git; do
+    if [ ! -f "$RELEASE_DIR/${script}.sh" ]; then
+        log_error "Required script not found: $RELEASE_DIR/${script}.sh"
+        exit 1
+    fi
+    source "$RELEASE_DIR/${script}.sh"
+done
 
 # Help function
 function show_help {
-    echo "Usage: ./release.sh -t <commit_title> -d <commit_details> -b <bump_type>"
+    echo "Usage: ./ops/release.sh -t <commit_title> -d <commit_details> -b <bump_type>"
     echo "Options:"
     echo "  -t <commit_title>    Title for the commit message"
     echo "  -d <commit_details>  Details for the commit message"
@@ -45,6 +49,7 @@ fi
 # Main release process
 function main() {
     log_info "Starting release process..."
+    cd "$PROJECT_ROOT"
     
     # Step 1: Validate environment and requirements
     validate_all

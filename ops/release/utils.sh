@@ -17,15 +17,19 @@ function log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 function setup_error_handling() {
     set -e  # Exit on error
     set -o pipefail  # Exit on pipe failures
-    trap 'log_error "An error occurred on line $LINENO. Exiting..."; exit 1' ERR
+    trap 'log_error "An error occurred on line $LINENO in $BASH_SOURCE. Exiting..."; exit 1' ERR
 }
 
 # Get script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+RELEASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OPS_DIR="$( cd "$RELEASE_DIR/.." && pwd )"
+PROJECT_ROOT="$( cd "$OPS_DIR/.." && pwd )"
 
 # Export common variables
 export PYPI_PACKAGE_NAME="python-code-quality-analyzer"
 export PYPROJECT_FILE="$PROJECT_ROOT/pyproject.toml"
 export SETUP_FILE="$PROJECT_ROOT/setup.py"
-export CHANGELOG_FILE="$PROJECT_ROOT/docs/CHANGELOG.md" 
+export CHANGELOG_FILE="$PROJECT_ROOT/docs/CHANGELOG.md"
+export OPS_DIR
+export PROJECT_ROOT
+export RELEASE_DIR 

@@ -20,7 +20,7 @@ function run_tests() {
     
     # Run unit tests
     log_info "Running unit tests..."
-    if ! "$SCRIPT_DIR/../test/unit.sh"; then
+    if ! "$OPS_DIR/test/unit.sh"; then
         log_error "Unit tests failed"
         exit 1
     fi
@@ -28,7 +28,7 @@ function run_tests() {
     
     # Run quality tests
     log_info "Running quality tests..."
-    if ! "$SCRIPT_DIR/../test/quality.sh"; then
+    if ! "$OPS_DIR/test/quality.sh"; then
         log_error "Quality tests failed"
         exit 1
     fi
@@ -89,13 +89,13 @@ function test_package() {
     cd "$PROJECT_ROOT"
     
     # Run package tests in Docker
-    if ! "$SCRIPT_DIR/../test/docker.sh" -v "$version"; then
+    if ! "$OPS_DIR/test/docker.sh" -v "$version"; then
         log_error "Package tests in Docker failed"
         exit 1
     fi
     
     # Run package installation tests
-    if ! "$SCRIPT_DIR/../test/package.sh" -v "$version"; then
+    if ! "$OPS_DIR/test/package.sh" -v "$version"; then
         log_error "Package installation tests failed"
         exit 1
     fi
