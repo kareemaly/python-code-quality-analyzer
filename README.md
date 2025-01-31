@@ -161,6 +161,48 @@ The JSON output provides detailed metrics for programmatic analysis:
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
+### Development Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/kareemaly/python-code-quality-analyzer.git
+   cd python-code-quality-analyzer
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. Install development dependencies:
+   ```bash
+   pip install -e .[dev]
+   ```
+
+4. Run tests:
+   ```bash
+   pytest
+   ```
+
+### Release Process
+
+Releases are managed through GitHub Actions. To create a new release:
+
+1. Go to the Actions tab in the repository
+2. Select the "Release" workflow
+3. Click "Run workflow"
+4. Choose the version bump type (patch, minor, or major)
+5. Enter the release notes
+6. Click "Run workflow"
+
+The workflow will:
+- Update version numbers
+- Run tests
+- Build the package
+- Publish to PyPI
+- Create a GitHub release
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 

@@ -1,0 +1,10 @@
+-e .[dev]
+pytest>=8.0.0
+pytest-cov>=4.1.0
+black>=24.1.0
+isort>=5.13.0
+flake8>=7.0.0
+mypy>=1.8.0
+python-release-master>=1.0.0
+build>=1.0.3
+twine>=4.0.2 

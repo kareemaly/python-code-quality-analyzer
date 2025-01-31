@@ -6,7 +6,9 @@ from setuptools import find_namespace_packages, setup
 
 setup(
     name="python-code-quality-analyzer",
-    version="0.1.0",
+    version="[0;34m[INFO][0m Calculating new version...
+[0;32m[SUCCESS][0m Version bump: 0.1.0 -> 1.0.0
+1.0.0",
     packages=find_namespace_packages(include=["code_analyzer*"]),
     include_package_data=True,
     package_data={
