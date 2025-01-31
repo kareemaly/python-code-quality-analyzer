@@ -2,220 +2,131 @@
 Console formatter for rich terminal output
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from rich.table import Table
-from rich.tree import Tree
-from rich.panel import Panel
-from rich.syntax import Syntax
 from rich.columns import Columns
+from rich.console import Console
 
 from .base_formatter import BaseFormatter
 
 class ConsoleFormatter(BaseFormatter):
     """Formatter for console output using rich"""
     
-    def format(self, data: Dict[str, Any]) -> Any:
-        """Format data based on its type and structure"""
-        if not data:
-            return Panel("No data available", title="Empty Result")
-        
-        if "error" in data:
-            return Panel(f"[red]{data['error']}[/red]", title="Error")
-        
-        # Create panels for different sections
-        panels = []
-        
-        # Performance metrics
-        if "analysis_time" in data:
-            panels.append(self._format_performance(data))
-        
-        # Metrics by file
-        if "metrics" in data:
-            panels.append(self._format_metrics(data["metrics"]))
-        
-        # Summary
-        if "summary" in data:
-            panels.append(self._format_summary(data["summary"]))
-        
-        return Columns(panels)
+    def __init__(self):
+        """Initialize the formatter."""
+        self.console = Console(record=True)
     
-    def _format_performance(self, data: Dict[str, Any]) -> Panel:
-        """Format performance metrics"""
-        lines = [
-            "[bold]Performance Metrics[/bold]",
-            f"Total analysis time: {data['analysis_time']:.2f}s"
-        ]
+    def format(self, data: Dict[str, Any]) -> str:
+        """Format analysis results for console output.
         
-        # Add per-file performance if available
-        metrics = data.get("metrics", {})
-        if metrics:
-            total_file_time = sum(
-                m.get("performance", {}).get("total_time", 0)
-                for m in metrics.values()
-            )
-            avg_file_time = total_file_time / len(metrics) if metrics else 0
+        Args:
+            data: Analysis results to format
             
-            lines.extend([
-                f"Average time per file: {avg_file_time:.3f}s",
-                "\n[bold]Slowest Files:[/bold]"
-            ])
+        Returns:
+            str: Formatted string representation
+        """
+        if not data or not data.get("files"):
+            return "No files analyzed"
             
-            # Show top 5 slowest files
-            sorted_files = sorted(
-                [(f, m["performance"]["total_time"]) for f, m in metrics.items() if "performance" in m],
-                key=lambda x: x[1],
-                reverse=True
-            )
-            
-            for file_path, time_taken in sorted_files[:5]:
-                lines.append(f"{file_path}: {time_taken:.3f}s")
+        tables = []
         
-        return Panel("\n".join(lines), title="Performance")
+        # Create performance table
+        tables.append(self._create_performance_table(data))
+        
+        # Create metrics table
+        tables.append(self._create_metrics_table(data))
+        
+        # Create summary table
+        tables.append(self._create_summary_table(data))
+        
+        # Render to string using Console
+        self.console.print(Columns(tables))
+        return self.console.export_text()
     
-    def _format_metrics(self, metrics: Dict[str, Any]) -> Panel:
-        """Format file metrics"""
-        if not metrics:
-            return Panel("No metrics available", title="Metrics")
+    def _create_performance_table(self, data: Dict[str, Any]) -> Table:
+        """Create performance metrics table."""
+        table = Table(title="Performance")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value")
         
-        table = self._create_table(
-            "File Metrics",
-            ["File", "Complexity", "MI", "LOC", "Functions"]
-        )
-        
-        for file_path, data in metrics.items():
-            complexity = data.get("complexity", {})
-            maintainability = data.get("maintainability", {})
-            size = data.get("size", {})
-            
-            table.add_row(
-                file_path,
-                f"{complexity.get('average', 0):.1f}",
-                f"{maintainability.get('index', 0):.1f} ({maintainability.get('rank', 'N/A')})",
-                str(size.get("loc", 0)),
-                str(len(complexity.get("functions", [])))
-            )
-        
-        return Panel(table, title="Metrics by File")
-    
-    def _format_summary(self, summary: Dict[str, Any]) -> Panel:
-        """Format analysis summary"""
-        if not summary:
-            return Panel("No summary available", title="Summary")
-        
-        lines = [
-            "[bold]Analysis Summary[/bold]",
-            f"Total files: {summary.get('total_files', 0)}",
-            f"Total functions: {summary.get('total_functions', 0)}",
-            f"Average complexity: {summary.get('average_complexity', 0):.2f}",
-            f"Average maintainability: {summary.get('average_maintainability', 0):.2f}"
-        ]
-        
-        # Add high complexity functions
-        high_complexity = summary.get("high_complexity_functions", [])
-        if high_complexity:
-            lines.extend([
-                "\n[bold red]High Complexity Functions:[/bold red]"
-            ])
-            
-            for func in high_complexity[:5]:
-                lines.append(
-                    f"{func['file']}::{func['name']} "
-                    f"(complexity: {func['complexity']}, line: {func['line_number']})"
-                )
-        
-        return Panel("\n".join(lines), title="Summary")
-    
-    def _is_tabular_data(self, data: Dict[str, Any]) -> bool:
-        """Check if data is suitable for table format"""
-        if isinstance(data, dict) and data:
-            first_value = next(iter(data.values()))
-            return isinstance(first_value, (dict, list)) and all(
-                isinstance(v, type(first_value)) for v in data.values()
-            )
-        return False
-    
-    def _is_tree_data(self, data: Dict[str, Any]) -> bool:
-        """Check if data is suitable for tree format"""
-        return isinstance(data, dict) and any(
-            isinstance(v, (dict, list)) for v in data.values()
-        )
-    
-    def _is_code_data(self, data: Dict[str, Any]) -> bool:
-        """Check if data contains code"""
-        return isinstance(data, dict) and any(
-            isinstance(v, str) and (v.startswith("def ") or v.startswith("class "))
-            for v in data.values()
-        )
-    
-    def _format_table(self, data: Dict[str, Any]) -> Table:
-        """Format data as table"""
-        if isinstance(next(iter(data.values())), dict):
-            # Dictionary of dictionaries
-            columns = ["Key"] + list(next(iter(data.values())).keys())
-            table = self._create_table("Data Table", columns)
-            
-            for key, value in data.items():
-                row = [key] + [str(v) for v in value.values()]
-                table.add_row(*row)
-        else:
-            # Dictionary of lists or simple values
-            columns = list(data.keys())
-            table = self._create_table("Data Table", columns)
-            
-            if isinstance(next(iter(data.values())), list):
-                # Transpose lists to rows
-                rows = zip(*[data[col] for col in columns])
-                for row in rows:
-                    table.add_row(*[str(cell) for cell in row])
-            else:
-                table.add_row(*[str(v) for v in data.values()])
+        table.add_row("Total Files", str(len(data["files"])))
+        table.add_row("Total Functions", str(data.get("total_functions", 0)))
+        table.add_row("Average Complexity", f"{data.get('average_complexity', 0):.2f}")
         
         return table
     
-    def _format_tree(self, data: Dict[str, Any]) -> Tree:
-        """Format data as tree"""
-        tree = self._create_tree("Data Tree")
+    def _create_metrics_table(self, data: Dict[str, Any]) -> Table:
+        """Create detailed metrics table."""
+        table = Table(title="Metrics by File")
+        table.add_column("File/Function", style="cyan")
+        table.add_column("Complexity")
+        table.add_column("MI", justify="right")
+        table.add_column("Line", justify="right")
+        table.add_column("Status", style="red")
         
-        def add_node(parent: Tree, key: str, value: Any) -> None:
-            if isinstance(value, dict):
-                branch = parent.add(f"[cyan]{key}[/cyan]")
-                for k, v in value.items():
-                    add_node(branch, k, v)
-            elif isinstance(value, list):
-                branch = parent.add(f"[cyan]{key}[/cyan]")
-                for i, item in enumerate(value):
-                    add_node(branch, str(i), item)
-            else:
-                parent.add(f"[cyan]{key}[/cyan]: {value}")
+        for file_data in data["files"]:
+            # Add file row
+            file_complexity = file_data.get("cyclomatic_complexity", 0)
+            file_mi = file_data.get("maintainability_index", 0)
+            error = file_data.get("error", "")
+            
+            table.add_row(
+                file_data["file_path"],
+                self._color_complexity(file_complexity),
+                self._color_mi(file_mi),
+                "",
+                error
+            )
+            
+            # Add function rows
+            for func in file_data.get("functions", []):
+                table.add_row(
+                    f"  └─ {func['name']}",
+                    self._color_complexity(func["complexity"]),
+                    "",
+                    str(func.get("line_number", "")),
+                    ""
+                )
         
-        for key, value in data.items():
-            add_node(tree, key, value)
-        
-        return tree
+        return table
     
-    def _format_code(self, data: Dict[str, Any]) -> Panel:
-        """Format code with syntax highlighting"""
-        code_blocks = []
-        for key, value in data.items():
-            if isinstance(value, str) and (value.startswith("def ") or value.startswith("class ")):
-                code_blocks.append(f"# {key}")
-                code_blocks.append(value)
+    def _create_summary_table(self, data: Dict[str, Any]) -> Table:
+        """Create summary table."""
+        table = Table(title="Summary")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value")
         
-        return Panel(
-            Syntax("\n\n".join(code_blocks), "python", theme="monokai"),
-            title="Code View"
-        )
+        total_mi = sum(f.get("maintainability_index", 0) for f in data["files"])
+        avg_mi = total_mi / len(data["files"]) if data["files"] else 0
+        
+        table.add_row("Average MI", f"{avg_mi:.2f}")
+        table.add_row("Total Complexity", str(data.get("total_complexity", 0)))
+        table.add_row("Average Complexity", f"{data.get('average_complexity', 0):.2f}")
+        
+        return table
     
-    def _format_panel(self, data: Dict[str, Any]) -> Panel:
-        """Format data as simple panel"""
-        lines = []
-        
-        def format_value(value: Any, indent: int = 0) -> str:
-            if isinstance(value, (dict, list)):
-                return str(value)
-            return str(value)
-        
-        for key, value in data.items():
-            lines.append(f"{' ' * 2}{key}: {format_value(value)}")
-        
-        return Panel("\n".join(lines), title="Data View") 
+    def _get_mi_color(self, mi: float) -> str:
+        """Get color for maintainability index."""
+        if mi >= 80:
+            return "green"
+        elif mi >= 60:
+            return "yellow"
+        return "red"
+    
+    def _get_complexity_color(self, complexity: float) -> str:
+        """Get color for complexity value."""
+        if complexity <= 4:
+            return "green"
+        elif complexity <= 7:
+            return "yellow"
+        return "red"
+    
+    def _color_mi(self, mi: float) -> str:
+        """Format maintainability index with color."""
+        color = self._get_mi_color(mi)
+        return f"[{color}]{mi:.1f}[/{color}]"
+    
+    def _color_complexity(self, complexity: float) -> str:
+        """Format complexity with color."""
+        color = self._get_complexity_color(complexity)
+        return f"[{color}]{complexity}[/{color}]" 

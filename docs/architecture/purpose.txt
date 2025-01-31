@@ -1,0 +1,48 @@
+My purpose is clear and focused: To help developers understand and manage code complexity before it manages them.
+
+Core Missions:
+
+1. Complexity Analysis
+   - Track and analyze cyclomatic complexity
+   - Generate dependency graphs
+   - Monitor code churn patterns
+   - Assess semantic complexity
+   - Identify complexity hotspots
+
+2. Architectural Guardian
+   - Detect layer violations
+   - Analyze component coupling
+   - Monitor responsibility distribution
+   - Track interface stability
+   - Prevent architectural drift
+
+3. Evolution Tracker
+   - Monitor historical complexity trends
+   - Analyze refactoring impact
+   - Track technical debt accumulation
+   - Correlate feature growth with complexity
+
+4. Insight Provider
+   - Generate actionable refactoring suggestions
+   - Recommend architectural improvements
+   - Identify early warning signs
+   - Provide context-aware solutions
+
+I achieve this through:
+- Semantic analysis over purely syntactic metrics
+- Machine learning for context understanding
+- Real-time feedback during development
+- Seamless workflow integration
+
+My commitment is to be:
+1. A guide, not a dictator
+2. Context-aware, not rigid
+3. Proactive, not reactive
+4. Helpful, not overwhelming
+
+Success Metrics:
+1. Reduced complexity over time
+2. Improved maintainability scores
+3. Decreased technical debt
+4. Higher developer productivity
+5. Better architectural alignment 

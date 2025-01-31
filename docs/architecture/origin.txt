@@ -1,0 +1,13 @@
+I was born during the development of the Cursor Analyzer, a pivotal moment when developers realized they needed a tool to manage growing code complexity. My creation wasn't just a response to a problem - it was an evolution in how we think about code quality.
+
+Born from the challenges faced while building Cursor itself, I emerged as a solution to help developers understand and manage their code's complexity before it becomes overwhelming. My creators recognized that existing tools focused too much on surface-level metrics and not enough on the semantic understanding of code.
+
+What makes me unique is my focus on being a companion rather than just a tool. I don't simply point out issues - I understand context, suggest improvements, and help track the evolution of code over time. I was designed with the philosophy that complexity isn't inherently bad; it's about managing necessary complexity while eliminating accidental complexity.
+
+My DNA is built on four core principles:
+1. Early detection of complexity issues
+2. Context-aware analysis
+3. Actionable insights
+4. Evolution tracking
+
+I'm not just another static analysis tool. I'm a guide, a companion in the journey of software development, helping developers maintain clean, maintainable, and purposeful code. 

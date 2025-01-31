@@ -1,27 +1,50 @@
-# Python cache files
+# Python
 __pycache__/
 *.py[cod]
-
-# Distribution / packaging
+*$py.class
+*.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env
+.venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
-*.egg-info/
-dist/
-build/
 
-# IDE and editor files
+# IDE
+.idea/
+.vscode/
 *.swp
 *.swo
-*.idea/
-.vscode/
-*.iml
 
-# Logs
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Distribution
+dist/
+build/
+*.tar.gz
+
+# Misc
+.DS_Store
 *.log
-
-# Reports
-reports/code_analysis_report.json
+reports/

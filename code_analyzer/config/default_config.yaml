@@ -1,0 +1,163 @@
+# Default configuration for code-analyzer
+
+# Analysis settings
+analysis:
+  # Minimum complexity threshold for highlighting functions
+  min_complexity: 5
+  # File patterns to exclude from analysis
+  exclude_patterns:
+    # Virtual environments and site-packages
+    - ".venv"
+    - "venv"
+    - "env"
+    - "virtualenv"
+    - ".tox"
+    - ".venv/**/*"
+    - "venv/**/*"
+    - "env/**/*"
+    - "virtualenv/**/*"
+    - "*/.venv/**/*"
+    - "*/venv/**/*"
+    - "*/env/**/*"
+    - "*/virtualenv/**/*"
+    - "site-packages"
+    - "**/site-packages/**/*"
+    # Package management
+    - "node_modules"
+    - "node_modules/**/*"
+    - "**/node_modules/**/*"
+    - ".tox/**/*"
+    - "*/.tox/**/*"
+    - ".eggs"
+    - ".eggs/**/*"
+    - "*/.eggs/**/*"
+    - "*.egg-info"
+    - "*.egg-info/**/*"
+    # Build and distribution
+    - "build"
+    - "build/**/*"
+    - "*/build/**/*"
+    - "dist"
+    - "dist/**/*"
+    - "*/dist/**/*"
+    # Cache directories
+    - "__pycache__"
+    - "__pycache__/**/*"
+    - "*/__pycache__/**/*"
+    - ".mypy_cache"
+    - ".mypy_cache/**/*"
+    - "*/.mypy_cache/**/*"
+    - ".pytest_cache"
+    - ".pytest_cache/**/*"
+    - "*/.pytest_cache/**/*"
+    - ".coverage"
+    - ".coverage/**/*"
+    - "*/.coverage/**/*"
+    - ".hypothesis"
+    - ".hypothesis/**/*"
+    - "*/.hypothesis/**/*"
+    # Version control
+    - ".git"
+    - ".git/**/*"
+    - "*/.git/**/*"
+    - ".hg"
+    - ".hg/**/*"
+    - "*/.hg/**/*"
+    - ".svn"
+    - ".svn/**/*"
+    - "*/.svn/**/*"
+    # IDE and editor files
+    - ".idea"
+    - ".idea/**/*"
+    - "*/.idea/**/*"
+    - ".vscode"
+    - ".vscode/**/*"
+    - "*/.vscode/**/*"
+    # Documentation
+    - "docs"
+    - "docs/**/*"
+    - "*/docs/**/*"
+    - "doc"
+    - "doc/**/*"
+    - "*/doc/**/*"
+    # Test files
+    - "tests"
+    - "tests/**/*"
+    - "*/tests/**/*"
+    - "test"
+    - "test/**/*"
+    - "*/test/**/*"
+    - "testing"
+    - "testing/**/*"
+    - "*/testing/**/*"
+    - "test_*.py"
+    - "**/test_*.py"
+    - "*_test.py"
+    - "**/*_test.py"
+    - "*_tests.py"
+    - "**/*_tests.py"
+
+# Output settings
+output:
+  # Default output format (console, json, csv)
+  format: "console"
+  # Whether to show verbose output
+  verbose: false
+  # Whether to show progress bars
+  show_progress: true
+  # Whether to show warnings
+  show_warnings: true
+  # Color settings for console output
+  colors:
+    enabled: true
+    error: "red"
+    warning: "yellow"
+    success: "green"
+    info: "blue"
+
+# Metrics settings
+metrics:
+  # Whether to calculate maintainability index
+  maintainability_index: true
+  # Whether to calculate halstead metrics
+  halstead_metrics: true
+  # Thresholds for maintainability index ratings
+  mi_thresholds:
+    good: 80
+    medium: 60
+    poor: 40
+
+# Report settings
+reports:
+  # Directory to store generated reports
+  output_dir: "reports"
+  # Whether to generate HTML reports
+  generate_html: true
+  # Whether to generate trend analysis
+  track_trends: true
+  # Maximum reports to keep
+  max_reports: 10
+
+# Server settings
+server:
+  # Host for the report server
+  host: "localhost"
+  # Port for the report server
+  port: 8000
+  # Whether to enable authentication
+  auth_enabled: false
+  # Credentials if auth is enabled
+  credentials:
+    username: "admin"
+    password: "admin"
+
+# Thresholds for metrics
+thresholds:
+  complexity:
+    low: 4      # Green
+    medium: 7    # Yellow
+    high: 10     # Red
+  maintainability_index:
+    high: 80     # Green
+    medium: 60   # Yellow
+    low: 40      # Red 

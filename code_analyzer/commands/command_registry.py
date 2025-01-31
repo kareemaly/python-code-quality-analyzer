@@ -1,45 +1,48 @@
 """
-Command registry for managing CLI commands
+Command registry for managing available commands
 """
 
-from typing import Dict, Type, Optional
-from pathlib import Path
-
+from typing import Dict, Type
 from .base_command import BaseCommand
+from .analyze import AnalyzeCommand
 
 class CommandRegistry:
-    """Registry for CLI commands"""
+    """Registry for available commands"""
     
     def __init__(self):
+        """Initialize the registry"""
         self._commands: Dict[str, Type[BaseCommand]] = {}
-        self._config_root: Optional[Path] = None
+        self.register_command("analyze", AnalyzeCommand)
     
-    def register(self, name: str, command_class: Type[BaseCommand]) -> None:
-        """Register a command"""
+    def register_command(self, name: str, command_class: Type[BaseCommand]) -> None:
+        """Register a new command.
+        
+        Args:
+            name (str): Command name
+            command_class (Type[BaseCommand]): Command class
+            
+        Raises:
+            ValueError: If command already registered
+        """
         if name in self._commands:
             raise ValueError(f"Command '{name}' already registered")
         self._commands[name] = command_class
     
     def get_command(self, name: str) -> BaseCommand:
-        """Get a command instance by name"""
-        if name not in self._commands:
-            raise ValueError(f"Command '{name}' not found")
+        """Get a command instance by name.
         
-        command = self._commands[name]()
-        if self._config_root:
-            command._setup(self._config_root)
-        return command
-    
-    def set_config_root(self, path: Path) -> None:
-        """Set configuration root path for all commands"""
-        self._config_root = path
-    
-    def list_commands(self) -> Dict[str, str]:
-        """List all registered commands and their descriptions"""
-        return {
-            name: cmd.__doc__.split('\n')[0] if cmd.__doc__ else "No description"
-            for name, cmd in self._commands.items()
-        }
+        Args:
+            name (str): Command name
+            
+        Returns:
+            BaseCommand: Command instance
+            
+        Raises:
+            KeyError: If command not found
+        """
+        if name not in self._commands:
+            raise KeyError(f"Command '{name}' not found")
+        return self._commands[name]()
 
-# Global command registry instance
-registry = CommandRegistry() 
+# Global registry instance
+registry = CommandRegistry()

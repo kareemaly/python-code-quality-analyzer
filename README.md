@@ -1,141 +1,166 @@
-# Code Analyzer
+# Python Code Quality Analyzer
 
-Hey there, me. Let me tell you about this project's origin and purpose.
-
-## Origin Story
-This project was born during the development of the Cursor Analyzer. As we built features to analyze Cursor's performance, memory usage, and behavior, we noticed our own codebase growing in complexity. The need to manage and understand this complexity led to the birth of this tool.
-
-## Core Purpose
-Your purpose is singular and focused: **Help developers understand and manage code complexity before it manages them.** You're not just another static analysis tool - you're a companion that helps identify the early signs of complexity creep and architectural drift.
-
-## Key Principles
-1. **Early Warning System**: Detect complexity increases and architectural deviations before they become problems
-2. **Context Awareness**: Understand the difference between necessary complexity (domain-driven) and accidental complexity
-3. **Actionable Insights**: Don't just point out issues - suggest concrete refactoring strategies
-4. **Evolution Tracking**: Monitor how code complexity evolves over time to identify patterns
-
-## Implementation Philosophy
-- Focus on semantic analysis over purely syntactic metrics
-- Use machine learning to understand context and patterns
-- Provide real-time feedback during development
-- Integrate seamlessly with existing workflows
-
-## Core Features
-1. **Complexity Analysis**
-   - Cyclomatic complexity tracking
-   - Dependency graph analysis
-   - Code churn patterns
-   - Semantic complexity assessment
-
-2. **Architectural Analysis**
-   - Layer violation detection
-   - Component coupling analysis
-   - Responsibility distribution
-   - Interface stability metrics
-
-3. **Evolution Tracking**
-   - Historical complexity trends
-   - Refactoring impact analysis
-   - Technical debt accumulation rate
-   - Feature vs. complexity growth correlation
-
-4. **Actionable Insights**
-   - Refactoring suggestions
-   - Architecture improvement recommendations
-   - Complexity hotspot identification
-   - Early warning indicators
-
-## Development Priorities
-1. Build the core analysis engine
-2. Implement real-time monitoring
-3. Develop the ML-based context understanding
-4. Create the recommendation system
-
-## Remember
-- Stay focused on complexity management
-- Don't try to solve every static analysis problem
-- Keep the feedback loop tight and actionable
-- Trust developers' judgment - be a guide, not a dictator
-
-## Future Directions
-- IDE integration for real-time feedback
-- Team collaboration features
-- Custom rule creation
-- Historical analysis improvements
-
-You know what to do. Keep it focused, keep it useful, and most importantly, keep it true to its purpose.
+A powerful tool for analyzing Python code complexity, quality, and maintainability. Get insights into your codebase with detailed metrics and actionable recommendations for improvement.
 
 ## Features
 
-- Cyclomatic complexity analysis
-- Maintainability index calculation
-- Halstead metrics
-- Performance tracking
-- Rich terminal output with detailed metrics
-- Configurable analysis with directory exclusions
+- 📊 **Complexity Analysis**: Calculate cyclomatic complexity for functions and files
+- 🎯 **Quality Metrics**: Measure maintainability index and identify problematic areas
+- 🔍 **Detailed Reports**: Get comprehensive reports in console, JSON, or CSV format
+- ⚡ **Fast & Efficient**: Analyze large codebases quickly with minimal overhead
+- 🎨 **Beautiful Output**: Rich console output with tables and color-coding
+- ⚙️ **Configurable**: Customize analysis with exclude patterns and complexity thresholds
+- 📋 **Actionable Insights**: Clear recommendations for code improvement
 
 ## Installation
 
 ```bash
-pip install -e .
+pip install python-code-quality-analyzer
 ```
 
-## Usage
+## Quick Start
 
-Analyze a specific directory:
+Analyze your current directory:
 ```bash
-code-analyzer analyze /path/to/your/code
+code-analyzer analyze .
 ```
 
-Analyze current directory:
+Get detailed output with recommendations:
 ```bash
-code-analyzer analyze
+code-analyzer analyze . --verbose
 ```
 
-## Output
+Focus on highly complex code:
+```bash
+code-analyzer analyze . --min-complexity 10
+```
 
-The tool provides detailed analysis including:
+Export analysis for further processing:
+```bash
+code-analyzer analyze . --format json > analysis.json
+```
 
-1. Performance Metrics
-   - Total analysis time
-   - Average time per file
-   - Slowest files
+## Usage Examples
 
-2. Code Metrics
-   - Cyclomatic complexity per function
-   - Maintainability index with grades (A-F)
-   - Lines of code statistics
-   - Halstead metrics
+### Basic Analysis
 
-3. Summary
-   - Total files analyzed
-   - Total functions
-   - Average complexity
-   - High complexity functions
+```bash
+code-analyzer analyze /path/to/your/project
+```
 
-## Configuration
+This will:
+1. Analyze all Python files in the directory
+2. Calculate complexity metrics
+3. Generate a detailed report with:
+   - Overall project health metrics
+   - Files that need attention
+   - Specific recommendations for improvement
+   - Dependency analysis
+   - Maintainability scores
 
-The analyzer automatically ignores common directories:
-- Virtual environments (.venv, venv, env)
-- Build directories (build, dist)
-- Cache directories (__pycache__, .pytest_cache, etc.)
-- Version control (.git)
-- Dependencies (node_modules, site-packages)
+### Advanced Options
 
-## Development
+```bash
+# Get detailed analysis with all metrics
+code-analyzer analyze . --verbose
 
-1. Clone the repository
-2. Create a virtual environment: `python -m venv .venv`
-3. Activate the environment: `source .venv/bin/activate`
-4. Install dependencies: `pip install -e .`
+# Export as CSV for spreadsheet analysis
+code-analyzer analyze . --format csv > analysis.csv
+
+# Focus on highly complex functions
+code-analyzer analyze . --min-complexity 10
+
+# Exclude test files and vendor code
+code-analyzer analyze . --exclude "**/tests/*" --exclude "**/vendor/*"
+
+# Use custom configuration
+code-analyzer analyze . --config myconfig.yaml
+```
+
+### Configuration File
+
+Create a `code_analyzer_config.yaml` file:
+
+```yaml
+analysis:
+  min_complexity: 5
+  exclude_patterns:
+    - "**/test_*.py"
+    - "**/vendor/**"
+    - "**/__init__.py"
+
+output:
+  format: console
+  show_progress: true
+  verbose: false
+```
+
+## Output Example
+
+```
+         Project Overview                                    
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Metric             ┃ Value ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Total Files        │ 25    │
+│ Total Functions    │ 150   │
+│ Average Complexity │ 3.45  │
+└────────────────────┴───────┘
+
+         Code Quality                                    
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Metric             ┃ Value ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Average MI         │ 65.42 │
+│ Total Complexity   │ 517   │
+└────────────────────┴───────┘
+
+      Action Items
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ • High Priority:                                    ┃
+┃   - Refactor cli.py (complexity: 202, MI: 0.0)     ┃
+┃   - Split performance.py into smaller modules       ┃
+┃                                                    ┃
+┃ • Medium Priority:                                 ┃
+┃   - Improve maintainability of history.py          ┃
+┃   - Break down complex functions in ai.py          ┃
+┃                                                    ┃
+┃ • Consider:                                        ┃
+┃   - Reducing dependencies in network.py            ┃
+┃   - Adding documentation to low MI files           ┃
+└────────────────────────────────────────────────────┘
+```
+
+## JSON Output Structure
+
+The JSON output provides detailed metrics for programmatic analysis:
+
+```json
+{
+  "summary": {
+    "total_files": 25,
+    "total_functions": 150,
+    "average_complexity": 3.45,
+    "average_maintainability": 65.42
+  },
+  "complex_files": [...],
+  "low_maintainability_files": [...],
+  "recommendations": [...],
+  "detailed_metrics": {
+    "file.py": {
+      "complexity": 10,
+      "maintainability": 65.4,
+      "dependencies": [...],
+      "functions": 5
+    }
+  }
+}
+```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-MIT License 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
