@@ -2,7 +2,7 @@
 Console formatter for rich terminal output
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from rich.columns import Columns
 from rich.console import Console
@@ -14,8 +14,14 @@ from .base_formatter import BaseFormatter
 class ConsoleFormatter(BaseFormatter):
     """Formatter for console output using rich"""
 
-    def __init__(self):
-        """Initialize the formatter."""
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize the console formatter.
+
+        Args:
+            config: Optional configuration dictionary
+        """
+        super().__init__(config)
+        self.config = config or {}
         self.console = Console(record=True)
 
     def format(self, data: Dict[str, Any]) -> str:

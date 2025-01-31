@@ -44,13 +44,20 @@ class BaseFormatter(ABC):
         """Format number with specified precision"""
         return f"{value:.{precision}f}"
 
-    def _format_bytes(self, bytes: int) -> str:
-        """Format bytes into human readable format"""
-        for unit in ["B", "KB", "MB", "GB"]:
-            if bytes < 1024:
-                return f"{bytes:.1f} {unit}"
-            bytes /= 1024
-        return f"{bytes:.1f} TB"
+    def _format_size(self, size_in_bytes: int) -> str:
+        """Format a size in bytes to a human-readable string.
+
+        Args:
+            size_in_bytes: Size in bytes
+
+        Returns:
+            Human-readable size string
+        """
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size_in_bytes < 1024.0:
+                return f"{size_in_bytes:.1f} {unit}"
+            size_in_bytes /= 1024.0
+        return f"{size_in_bytes:.1f} PB"
 
     def _format_duration(self, seconds: float) -> str:
         """Format duration in seconds to human readable format"""

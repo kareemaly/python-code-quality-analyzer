@@ -363,3 +363,31 @@ class ConfigLoader:
             "medium": self.get_value("thresholds", "maintainability_index", "medium", default=60),
             "high": self.get_value("thresholds", "maintainability_index", "high", default=80),
         }
+
+    def _validate_config_value(self, key: str, value: Any, schema: Dict[str, Any]) -> bool:
+        """Validate a configuration value against its schema.
+
+        Args:
+            key: The configuration key
+            value: The value to validate
+            schema: The schema to validate against
+
+        Returns:
+            True if the value is valid, False otherwise
+        """
+        if key not in schema:
+            return True
+
+        current_schema = schema[key]
+        value_type = current_schema.get('type')
+        allowed_values = current_schema.get('allowed_values', [])
+
+        if value_type and not isinstance(value, self._get_type(value_type)):
+            self._print_warning(f"Invalid type for {key}: expected {value_type}, got {type(value).__name__}")
+            return False
+
+        if allowed_values and str(value) not in [str(v) for v in allowed_values]:
+            self._print_warning(f"Invalid value for {key}: {value}. Allowed values: {allowed_values}")
+            return False
+
+        return True

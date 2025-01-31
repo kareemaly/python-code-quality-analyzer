@@ -4,6 +4,7 @@ Main entry point for code analyzer CLI
 
 import sys
 from pathlib import Path
+from typing import Optional
 
 import click
 from rich.console import Console
@@ -104,8 +105,8 @@ def analyze(
                 config_path=config,
             )
 
-    except Exception as e:
-        console.print(f"[red]Error: {e}[/red]", err=True)
+    except (FileNotFoundError, ValueError, ConfigError) as e:
+        console.print(f"[red]Error: {str(e)}[/red]", err=True)
         if verbose:
             console.print_exception()
         sys.exit(1)
