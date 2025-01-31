@@ -24,9 +24,7 @@ function bump_version() {
         exit 1
     fi
     
-    log_info "Calculating new version..."
     local current_version=$(get_current_version)
-    
     local major=$(echo $current_version | cut -d. -f1)
     local minor=$(echo $current_version | cut -d. -f2)
     local patch=$(echo $current_version | cut -d. -f3)
@@ -56,6 +54,7 @@ function bump_version() {
     esac
 
     local new_version="$major.$minor.$patch"
+    log_info "Calculating new version..."
     log_success "Version bump: ${current_version} -> ${new_version}"
     echo "$new_version"
 }
@@ -71,13 +70,13 @@ function update_version_files() {
     cd "$PROJECT_ROOT"
     
     # Update setup.py
-    if ! perl -pi -e "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py; then
+    if ! perl -pi -e 's/version="[^"]*"/version="'"$new_version"'"/' setup.py; then
         log_error "Failed to update version in setup.py"
         exit 1
     fi
     
     # Update pyproject.toml
-    if ! perl -pi -e "s/version = \"[^\"]*\"/version = \"$new_version\"/" pyproject.toml; then
+    if ! perl -pi -e 's/version = "[^"]*"/version = "'"$new_version"'"/' pyproject.toml; then
         log_error "Failed to update version in pyproject.toml"
         exit 1
     fi
