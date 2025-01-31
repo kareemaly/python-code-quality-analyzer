@@ -69,19 +69,27 @@ function update_version_files() {
     log_info "Updating version in files..."
     cd "$PROJECT_ROOT"
     
-    # Update setup.py using a temporary file
+    # Update setup.py
     local setup_tmp=$(mktemp)
-    awk -v ver="$new_version" '
-        /^    version=/ {print "    version=\"" ver "\",";}
-        !/^    version=/ {print}
-    ' setup.py > "$setup_tmp" && mv "$setup_tmp" setup.py
+    sed "/^[[:space:]]*version=/c\    version=\"$new_version\"," setup.py > "$setup_tmp"
+    if [ $? -eq 0 ]; then
+        mv "$setup_tmp" setup.py
+    else
+        rm -f "$setup_tmp"
+        log_error "Failed to update version in setup.py"
+        exit 1
+    fi
     
-    # Update pyproject.toml using a temporary file
+    # Update pyproject.toml
     local pyproject_tmp=$(mktemp)
-    awk -v ver="$new_version" '
-        /^version = / {print "version = \"" ver "\"";}
-        !/^version = / {print}
-    ' pyproject.toml > "$pyproject_tmp" && mv "$pyproject_tmp" pyproject.toml
+    sed "/^version = /c\version = \"$new_version\"" pyproject.toml > "$pyproject_tmp"
+    if [ $? -eq 0 ]; then
+        mv "$pyproject_tmp" pyproject.toml
+    else
+        rm -f "$pyproject_tmp"
+        log_error "Failed to update version in pyproject.toml"
+        exit 1
+    fi
     
     log_success "Version updated in all files"
 }
