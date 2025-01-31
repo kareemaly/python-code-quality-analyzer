@@ -71,7 +71,13 @@ function update_version_files() {
     
     # Update setup.py
     local setup_tmp=$(mktemp)
-    sed "s/^[[:space:]]*version=.*/    version=\"$new_version\",/" setup.py > "$setup_tmp"
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[[:space:]]*version= ]]; then
+            echo "    version=\"$new_version\"," >> "$setup_tmp"
+        else
+            echo "$line" >> "$setup_tmp"
+        fi
+    done < setup.py
     if [ $? -eq 0 ]; then
         mv "$setup_tmp" setup.py
     else
@@ -82,7 +88,13 @@ function update_version_files() {
     
     # Update pyproject.toml
     local pyproject_tmp=$(mktemp)
-    sed "s/^version = .*/version = \"$new_version\"/" pyproject.toml > "$pyproject_tmp"
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^version[[:space:]]*=[[:space:]]* ]]; then
+            echo "version = \"$new_version\"" >> "$pyproject_tmp"
+        else
+            echo "$line" >> "$pyproject_tmp"
+        fi
+    done < pyproject.toml
     if [ $? -eq 0 ]; then
         mv "$pyproject_tmp" pyproject.toml
     else
