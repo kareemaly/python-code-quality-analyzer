@@ -1,0 +1,48 @@
+version:
+  files: ["pyproject.toml", "src/code_analyzer/__init__.py"]
+  pattern: '[0-9]+\.[0-9]+\.[0-9]+'
+
+changelog:
+  ai:
+    enabled: false
+  sections:
+    - Features
+    - Bug Fixes
+    - Documentation
+    - Internal Changes
+  commit_conventions:
+    feat: Features
+    fix: Bug Fixes
+    docs: Documentation
+    chore: Internal Changes
+    refactor: Internal Changes
+    test: Internal Changes
+    ci: Internal Changes
+    build: Internal Changes
+
+git:
+  push: true
+  tag_prefix: v
+  release:
+    enabled: true
+    draft: false
+    prerelease: false
+    generate_notes: true
+
+pypi:
+  publish: true
+  repository: pypi
+  token_env_var: "PYPI_TOKEN"
+  uv_token_env_var: "UV_PUBLISH_TOKEN"
+
+testing:
+  run_before_release: true
+  docker:
+    enabled: false
+
+github:
+  auto_create: false
+  repo_name: "python-code-quality-analyzer"
+  private: false
+  description: "A powerful tool for analyzing Python code complexity, quality, and maintainability"
+  token_env_var: "GITHUB_TOKEN" 

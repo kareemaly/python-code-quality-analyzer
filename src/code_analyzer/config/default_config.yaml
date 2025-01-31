@@ -73,17 +73,51 @@ analysis:
     - ".vscode"
     - ".vscode/**/*"
     - "*/.vscode/**/*"
+    # Dead code analysis
+    - "**/.git/**"
+    - "**/.venv/**"
+    - "**/venv/**"
+    - "**/node_modules/**"
+    - "**/build/**"
+    - "**/dist/**"
+    - "**/__pycache__/**"
+    - "**/*.pyc"
   analyze_tests: false
   test_patterns:
-    - 'test_*.py'
-    - '*_test.py'
-    - '*_tests.py'
-    - 'tests/**/*'
-    - '*/tests/**/*'
-    - 'test/**/*'
-    - '*/test/**/*'
-    - 'testing/**/*'
-    - '*/testing/**/*'
+    - "**/test_*.py"
+    - "**/tests/**"
+    - "**/*_test.py"
+  dead_code:
+    enabled: true
+    ignore_private: false
+    ignore_test_files: true
+    min_references: 1
+    ignore_patterns:
+      - "**/tests/**"
+      - "setup.py"
+      - "conftest.py"
+    ignore_names:
+      - "__init__"
+      - "__main__"
+      - "main"
+      - "setup"
+  similarity:
+    enabled: true
+    min_fragment_size: 5
+    similarity_threshold: 0.8
+    ignore_test_files: true
+    ignore_patterns:
+      - "**/tests/**"
+      - "setup.py"
+      - "conftest.py"
+    ignore_names:
+      - "__init__"
+      - "__main__"
+      - "main"
+      - "setup"
+    lsh_config:
+      num_bands: 10
+      band_size: 2
 
 # Output settings
 output:

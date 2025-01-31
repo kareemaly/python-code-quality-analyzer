@@ -4,9 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-code-quality-analyzer"
-version = "[0;34m[INFO][0m Calculating new version...
-[0;32m[SUCCESS][0m Version bump: 0.1.0 -> 1.0.0
-1.0.0"
+version = "1.0.0"
 description = "A powerful tool for analyzing Python code complexity, quality, and maintainability"
 readme = "README.md"
 authors = [{name = "Kareem Elbahrawy", email = "kareemelbahrawy@gmail.com"}]
@@ -46,6 +44,7 @@ Repository = "https://github.com/kareemaly/python-code-quality-analyzer"
 code-analyzer = "code_analyzer.__main__:cli"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["code_analyzer", "code_analyzer.commands", "code_analyzer.config", "code_analyzer.metrics", "code_analyzer.formatters", "code_analyzer.analyzers"]
 
 [tool.black]

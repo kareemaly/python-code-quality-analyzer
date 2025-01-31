@@ -2,15 +2,80 @@
 Configuration loader for code analyzer
 """
 
-import os
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 import yaml
 
+
+class ConfigError(Exception):
+    """Exception raised for configuration errors."""
+    pass
+
+
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "default_config.yaml"
+
+
+@dataclass
+class DeadCodeConfig:
+    """Dead code analysis configuration."""
+    enabled: bool = True
+    ignore_private: bool = False
+    ignore_test_files: bool = True
+    min_references: int = 1
+    ignore_patterns: list = field(default_factory=lambda: ["**/tests/**", "setup.py", "conftest.py"])
+    ignore_names: list = field(default_factory=lambda: ["__init__", "__main__", "main", "setup"])
+
+    def __post_init__(self):
+        if self.ignore_patterns is None:
+            self.ignore_patterns = []
+        if self.ignore_names is None:
+            self.ignore_names = []
+
+
+@dataclass
+class LSHConfig:
+    """LSH configuration settings."""
+    num_bands: int = 10
+    band_size: int = 2
+
+
+@dataclass
+class SimilarityConfig:
+    """Similarity analysis configuration."""
+    enabled: bool = True
+    min_fragment_size: int = 5
+    similarity_threshold: float = 0.8
+    ignore_test_files: bool = True
+    ignore_patterns: list = field(default_factory=lambda: ["**/tests/**", "setup.py", "conftest.py"])
+    ignore_names: list = field(default_factory=lambda: ["__init__", "__main__", "main", "setup"])
+    lsh_config: LSHConfig = field(default_factory=LSHConfig)
+
+    def __post_init__(self):
+        if self.ignore_patterns is None:
+            self.ignore_patterns = []
+        if self.ignore_names is None:
+            self.ignore_names = []
+        if self.lsh_config is None:
+            self.lsh_config = LSHConfig()
+
+
+@dataclass
+class ComplexityConfig:
+    enabled: bool = True
+    max_complexity: int = 10
+    min_complexity: int = 1
+    ignore_patterns: list = field(default_factory=list)
+    ignore_private: bool = False
+    ignore_names: list = field(default_factory=list)
+
+    def __post_init__(self):
+        if self.ignore_patterns is None:
+            self.ignore_patterns = []
+        if self.ignore_names is None:
+            self.ignore_names = []
 
 
 @dataclass
@@ -21,6 +86,17 @@ class AnalysisConfig:
     exclude_patterns: list = field(default_factory=list)
     analyze_tests: bool = False
     test_patterns: list = field(default_factory=list)
+    dead_code: DeadCodeConfig = field(default_factory=DeadCodeConfig)
+    complexity: ComplexityConfig = field(default_factory=ComplexityConfig)
+    similarity: SimilarityConfig = field(default_factory=SimilarityConfig)
+
+    def __post_init__(self):
+        if self.dead_code is None:
+            self.dead_code = DeadCodeConfig()
+        if self.complexity is None:
+            self.complexity = ComplexityConfig()
+        if self.similarity is None:
+            self.similarity = SimilarityConfig()
 
 
 @dataclass
@@ -84,6 +160,13 @@ class Config:
     metrics: MetricsConfig = field(default_factory=MetricsConfig)
     reports: ReportsConfig = field(default_factory=ReportsConfig)
     server: ServerConfig = field(default_factory=ServerConfig)
+    search_paths: Optional[List[Path]] = None
+
+    def __post_init__(self):
+        if self.analysis is None:
+            self.analysis = AnalysisConfig()
+        if self.search_paths is None:
+            self.search_paths = [Path(".")]
 
 
 class ConfigLoader:
@@ -103,26 +186,10 @@ class ConfigLoader:
     def _load_default_config(self) -> None:
         """Load default configuration from file."""
         try:
-            with open(DEFAULT_CONFIG_PATH, "r") as f:
-                default_config = yaml.safe_load(f)
-            if default_config:
-                # Convert to structured format
-                structured_config = {}
-                for section in ["analysis", "output", "metrics", "reports", "server"]:
-                    if section in default_config:
-                        structured_config[section] = {}
-                        section_obj = getattr(self._config, section)
-                        for key, value in default_config[section].items():
-                            if hasattr(section_obj, key):
-                                structured_config[section][key] = value
-
-                # Update config with structured values
-                for section, values in structured_config.items():
-                    if hasattr(self._config, section):
-                        section_obj = getattr(self._config, section)
-                        for key, value in values.items():
-                            if hasattr(section_obj, key):
-                                setattr(section_obj, key, value)
+            config = self._load_config_from_file(DEFAULT_CONFIG_PATH)
+            if config:
+                structured_config = self._convert_to_structured_config(config)
+                self._update_config_from_dict(structured_config)
         except Exception as e:
             print(f"Warning: Could not load default config: {e}")
 
@@ -143,75 +210,95 @@ class ConfigLoader:
                 base[key] = value
         return base
 
-    def _load_local_config(self, config_path: Optional[Path] = None) -> None:
-        """Load configuration from local file."""
-        paths = [
-            config_path,
-            Path.cwd() / "code_analyzer.yaml",
-            Path.cwd() / "code_analyzer.yml",
-            Path.cwd() / ".code_analyzer.yaml",
-            Path.cwd() / ".code_analyzer.yml",
-            Path.home() / ".code_analyzer.yml",
+    def _get_config_paths(self, config_path: Optional[Path] = None) -> List[Path]:
+        """Get list of possible configuration file paths."""
+        return [
+            p for p in [
+                config_path,
+                Path.cwd() / "code_analyzer.yaml",
+                Path.cwd() / "code_analyzer.yml",
+                Path.cwd() / ".code_analyzer.yaml",
+                Path.cwd() / ".code_analyzer.yml",
+                Path.home() / ".code_analyzer.yml",
+            ] if p is not None
         ]
 
-        for path in filter(None, paths):
+    def _load_config_from_file(self, path: Path) -> Optional[Dict[str, Any]]:
+        """Load configuration from a file.
+        
+        Args:
+            path: Path to configuration file
+            
+        Returns:
+            Optional[Dict[str, Any]]: Loaded configuration or None if failed
+        """
+        try:
+            with open(path, "r") as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            print(f"Warning: Error loading config from {path}: {e}")
+            return None
+
+    def _convert_to_structured_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert raw config dict to structured format.
+        
+        Args:
+            config: Raw configuration dictionary
+            
+        Returns:
+            Dict[str, Any]: Structured configuration
+        """
+        structured_config = {}
+        for section in ["analysis", "output", "metrics", "reports", "server"]:
+            if section in config:
+                structured_config[section] = {}
+                section_obj = getattr(self._config, section)
+                for key, value in config[section].items():
+                    if hasattr(section_obj, key):
+                        structured_config[section][key] = value
+        return structured_config
+
+    def _get_current_config_dict(self) -> Dict[str, Any]:
+        """Get current configuration as dictionary.
+        
+        Returns:
+            Dict[str, Any]: Current configuration
+        """
+        return {
+            section: {
+                k: getattr(getattr(self._config, section), k)
+                for k in dir(getattr(self._config, section))
+                if not k.startswith("_")
+            }
+            for section in ["analysis", "output", "metrics", "reports", "server"]
+        }
+
+    def _update_config_from_dict(self, config_dict: Dict[str, Any]) -> None:
+        """Update configuration object from dictionary.
+        
+        Args:
+            config_dict: Configuration dictionary to apply
+        """
+        for section, values in config_dict.items():
+            if hasattr(self._config, section):
+                section_obj = getattr(self._config, section)
+                for key, value in values.items():
+                    if hasattr(section_obj, key):
+                        setattr(section_obj, key, value)
+
+    def _load_local_config(self, config_path: Optional[Path] = None) -> None:
+        """Load configuration from local file."""
+        paths = self._get_config_paths(config_path)
+
+        for path in paths:
             if path.exists():
-                try:
-                    with open(path, "r") as f:
-                        config = yaml.safe_load(f)
-                    if config:
-                        # Convert to structured format
-                        structured_config = {}
-                        for section in ["analysis", "output", "metrics", "reports", "server"]:
-                            if section in config:
-                                structured_config[section] = {}
-                                section_obj = getattr(self._config, section)
-                                for key, value in config[section].items():
-                                    if hasattr(section_obj, key):
-                                        structured_config[section][key] = value
-
-                        # Get current config as dict
-                        current_config = {
-                            "analysis": {
-                                k: getattr(self._config.analysis, k)
-                                for k in dir(self._config.analysis)
-                                if not k.startswith("_")
-                            },
-                            "output": {
-                                k: getattr(self._config.output, k)
-                                for k in dir(self._config.output)
-                                if not k.startswith("_")
-                            },
-                            "metrics": {
-                                k: getattr(self._config.metrics, k)
-                                for k in dir(self._config.metrics)
-                                if not k.startswith("_")
-                            },
-                            "reports": {
-                                k: getattr(self._config.reports, k)
-                                for k in dir(self._config.reports)
-                                if not k.startswith("_")
-                            },
-                            "server": {
-                                k: getattr(self._config.server, k)
-                                for k in dir(self._config.server)
-                                if not k.startswith("_")
-                            },
-                        }
-
-                        # Merge configs
-                        merged = self._merge_configs(current_config, structured_config)
-
-                        # Update config object with merged values
-                        for section, values in merged.items():
-                            if hasattr(self._config, section):
-                                section_obj = getattr(self._config, section)
-                                for key, value in values.items():
-                                    if hasattr(section_obj, key):
-                                        setattr(section_obj, key, value)
-                    break
-                except Exception as e:
-                    print(f"Warning: Error loading config from {path}: {e}")
+                config = self._load_config_from_file(path)
+                if config:
+                    structured_config = self._convert_to_structured_config(config)
+                    current_config = self._get_current_config_dict()
+                    merged = self._merge_configs(current_config, structured_config)
+                    self._update_config_from_dict(merged)
+                break
             elif path == config_path:  # Only raise error if it's the explicitly provided path
                 raise FileNotFoundError(f"Config file not found: {path}")
 
@@ -220,55 +307,10 @@ class ConfigLoader:
         if not config_dict:
             return
 
-        structured_config = {}
-
-        # Convert config dict to proper structure
-        for section in ["analysis", "output", "metrics", "reports", "server"]:
-            if section in config_dict:
-                structured_config[section] = {}
-                for key, value in config_dict[section].items():
-                    if hasattr(getattr(self._config, section), key):
-                        structured_config[section][key] = value
-
-        # Get current config as dict
-        current_config = {
-            "analysis": {
-                k: getattr(self._config.analysis, k)
-                for k in dir(self._config.analysis)
-                if not k.startswith("_")
-            },
-            "output": {
-                k: getattr(self._config.output, k)
-                for k in dir(self._config.output)
-                if not k.startswith("_")
-            },
-            "metrics": {
-                k: getattr(self._config.metrics, k)
-                for k in dir(self._config.metrics)
-                if not k.startswith("_")
-            },
-            "reports": {
-                k: getattr(self._config.reports, k)
-                for k in dir(self._config.reports)
-                if not k.startswith("_")
-            },
-            "server": {
-                k: getattr(self._config.server, k)
-                for k in dir(self._config.server)
-                if not k.startswith("_")
-            },
-        }
-
-        # Merge configs
+        structured_config = self._convert_to_structured_config(config_dict)
+        current_config = self._get_current_config_dict()
         merged = self._merge_configs(current_config, structured_config)
-
-        # Update config object with merged values
-        for section, values in merged.items():
-            if hasattr(self._config, section):
-                section_obj = getattr(self._config, section)
-                for key, value in values.items():
-                    if hasattr(section_obj, key):
-                        setattr(section_obj, key, value)
+        self._update_config_from_dict(merged)
 
     def load_config(
         self, config_path: Optional[str] = None, cli_options: Optional[Dict[str, Any]] = None

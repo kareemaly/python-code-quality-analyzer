@@ -1,0 +1,59 @@
+# Projects to validate code quality against
+projects:
+  - name: code-analyzer
+    path: .
+    complexity_threshold: 15  # Higher threshold for AST processing code
+
+# Global settings
+settings:
+  ignore_patterns:
+    - "**/test_*.py"
+    - "**/tests/**"
+    - "**/__pycache__/**"
+    - "**/.git/**"
+    - "**/.venv/**"
+    - "**/venv/**"
+    - "**/build/**"
+    - "**/dist/**"
+    - "**/*.egg-info/**"
+
+  dead_code:
+    ignore_private: true
+    ignore_names:
+      - "main"
+      - "setup"
+      - "test_*"
+      - "__*__"
+      - "visit_*"  # AST visitor methods are used via reflection
+      - "analyze"  # Abstract method implemented by subclasses
+      - "Test*"    # Test classes
+      - "run"      # Abstract command method
+      - "get_*"    # Getter methods
+      - "load_*"   # Loading methods
+      - "show_*"   # Display methods
+      - "use_*"    # Configuration methods
+      - "add_*"    # Builder methods
+      - "register_*"  # Registration methods
+      - "CLASS"    # Constants in dead code analyzer
+      - "FUNCTION"
+      - "METHOD"
+      - "VARIABLE"
+      - "IMPORT"
+      - "Layout"   # Rich library imports
+      - "Iterator" # Type hints
+      - "calculate_*"  # Utility methods
+      - "*_command"  # Command registry methods
+      - "*_config"   # Configuration methods
+      - "*_metrics"  # Metrics methods
+      - "*_progress" # Progress methods
+      - "*_color"    # Color methods
+      - "*_table"    # Table methods
+      - "*_format"   # Formatting methods
+      - "*_handles_*" # Handler methods
+      - "complexity_*" # Complexity-related methods
+      - "*_visitor"   # AST visitor classes
+      - "*_analyzer"  # Analyzer classes
+      - "*_formatter" # Formatter classes
+      - "*_registry"  # Registry classes
+      - "*_loader"    # Loader classes
+      - "*_thresholds" # Threshold configuration methods 

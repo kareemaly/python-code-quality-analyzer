@@ -2,7 +2,7 @@
 Command registry for managing available commands
 """
 
-from typing import Dict, Type
+from typing import Dict, Type, Any, Optional
 
 from .analyze import AnalyzeCommand
 from .base_command import BaseCommand
@@ -30,21 +30,20 @@ class CommandRegistry:
             raise ValueError(f"Command '{name}' already registered")
         self._commands[name] = command_class
 
-    def get_command(self, name: str) -> BaseCommand:
+    def get_command(self, name: str, **options) -> Optional[BaseCommand]:
         """Get a command instance by name.
 
         Args:
             name (str): Command name
+            **options: Additional options to pass to the command
 
         Returns:
-            BaseCommand: Command instance
-
-        Raises:
-            KeyError: If command not found
+            Optional[BaseCommand]: Command instance if found, None otherwise
         """
-        if name not in self._commands:
-            raise KeyError(f"Command '{name}' not found")
-        return self._commands[name]()
+        command_class = self._commands.get(name)
+        if command_class:
+            return command_class(**options)
+        return None
 
 
 # Global registry instance
