@@ -67,24 +67,28 @@ function update_version_files() {
     fi
     
     log_info "Updating version in files..."
+    cd "$PROJECT_ROOT"
     
     # Update setup.py
-    if ! sed -i '' "s/version=\".*\"/version=\"$new_version\"/" "$SETUP_FILE"; then
+    if ! sed -i.bak "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py; then
         log_error "Failed to update version in setup.py"
         exit 1
     fi
+    rm -f setup.py.bak
     
     # Update pyproject.toml
-    if ! sed -i '' "s/version = \".*\"/version = \"$new_version\"/" "$PYPROJECT_FILE"; then
+    if ! sed -i.bak "s/version = \"[^\"]*\"/version = \"$new_version\"/" pyproject.toml; then
         log_error "Failed to update version in pyproject.toml"
         exit 1
     fi
+    rm -f pyproject.toml.bak
     
     log_success "Version updated in all files"
 }
 
 function verify_version_consistency() {
     log_info "Verifying version consistency..."
+    cd "$PROJECT_ROOT"
     
     local pyproject_version=$(grep 'version = ' "$PYPROJECT_FILE" | head -1 | cut -d'"' -f2)
     local setup_version=$(grep 'version=' "$SETUP_FILE" | head -1 | cut -d'"' -f2)
