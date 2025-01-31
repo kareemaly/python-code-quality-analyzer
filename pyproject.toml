@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-code-quality-analyzer"
-version = "0.4.0"
+version = ".1.0"
 description = "A powerful tool for analyzing Python code complexity, quality, and maintainability"
 readme = "README.md"
 authors = [{name = "Kareem Elbahrawy", email = "kareem3d.a@gmail.com"}]
@@ -52,4 +52,4 @@ target-version = ["py38"]
 [tool.isort]
 profile = "black"
 line_length = 100
-multi_line_output = 3 
+multi_line_output = 3
