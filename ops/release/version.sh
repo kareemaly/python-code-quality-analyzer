@@ -70,18 +70,16 @@ function update_version_files() {
     cd "$PROJECT_ROOT"
     
     # Update setup.py
-    if ! sed -i.bak "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py; then
+    if ! perl -pi -e "s/version=\"[^\"]*\"/version=\"$new_version\"/" setup.py; then
         log_error "Failed to update version in setup.py"
         exit 1
     fi
-    rm -f setup.py.bak
     
     # Update pyproject.toml
-    if ! sed -i.bak "s/version = \"[^\"]*\"/version = \"$new_version\"/" pyproject.toml; then
+    if ! perl -pi -e "s/version = \"[^\"]*\"/version = \"$new_version\"/" pyproject.toml; then
         log_error "Failed to update version in pyproject.toml"
         exit 1
     fi
-    rm -f pyproject.toml.bak
     
     log_success "Version updated in all files"
 }
