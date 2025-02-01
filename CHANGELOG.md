@@ -1,7 +1,8 @@
+# Changelog
 
+All notable changes to this project will be documented in this file.
 
-## 2025-01-31
-## Changes
+## [1.0.5] - 2025-01-31
 
 ### Feature Changes
 - Enhanced release script with better logging and validation.
