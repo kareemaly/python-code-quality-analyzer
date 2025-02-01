@@ -1,11 +1,8 @@
-version:
-  files:
-    - file: pyproject.toml
-      pattern: version\s*=\s*["']([^"']+)["']
+version_file: pyproject.toml
+version_pattern: version\s*=\s*["']([^"']+)["']
 
-changelog:
-  file: CHANGELOG.md
-  pattern: '## \[([^\]]+)\]'
+changelog_file: CHANGELOG.md
+changelog_pattern: '## \[([^\]]+)\]'
 
 git:
   main_branch: main
